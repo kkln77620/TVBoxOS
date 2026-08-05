@@ -90,7 +90,7 @@ public class CacheActivity extends BaseActivity {
                     pb.setProgress(100);
                     break;
                 case CacheTask.STATE_FAILED:
-                    tvStatus.setText("下载失败");
+                    tvStatus.setText("下载失败: " + (item.errorMsg != null && !item.errorMsg.isEmpty() ? item.errorMsg : "未知原因"));
                     pb.setVisibility(android.view.View.VISIBLE);
                     pb.setProgress(0);
                     break;

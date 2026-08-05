@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="@dimen/vs_40">
+    android:layout_height="match_parent">
+
+    <!-- 可滚动内容区: 底部预留返回按钮空间 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/vs_70"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/vs_40">
 
     <TextView
         android:layout_width="match_parent"
@@ -58,7 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/vs_10"
         android:lineSpacingExtra="@dimen/vs_8"
-        android:text="· 六大板块导航：主页 / 分类 / 搜索 / 收藏 / 历史 / 设置\n· 多配置地址管理：可同时启用多个配置，数据源按配置分组\n· 主页配置一键切换：指定任一配置作为主页数据源\n· 聚合搜索：多源搜索结果按名称/年份智能合并，详情页可切换数据源\n· 直播播放：触屏控制台一键切换频道\n· 视频壁纸：支持内置 / 上传图片、GIF、视频作为壁纸"
+        android:text="· 六大板块导航：主页 / 分类 / 搜索 / 收藏 / 历史 / 设置\n· 多配置地址管理：可同时启用多个配置，数据源按配置分组\n· 主页配置一键切换：指定任一配置作为主页数据源\n· 聚合搜索：多源搜索结果按名称/年份智能合并，详情页可切换数据源\n· 直播播放：触屏控制台一键切换频道\n· 视频壁纸：内置壁纸循环切换，支持上传图片作为壁纸"
         android:textColor="@android:color/white"
         android:textSize="@dimen/ts_22" />
 
@@ -86,15 +97,22 @@
         android:padding="@dimen/vs_12"
         android:background="@drawable/button_dialog_main"
         android:focusable="true"
-        android:text="源码地址: https://github.com/"
+        android:text="源码地址: https://github.com/kkln77620/TVBoxOS"
         android:textColor="@android:color/white"
         android:textSize="@dimen/ts_22" />
 
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 底部固定返回按钮 -->
     <TextView
         android:id="@+id/btnBackAbout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/vs_15"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="@dimen/vs_40"
+        android:layout_marginRight="@dimen/vs_40"
+        android:layout_marginBottom="@dimen/vs_20"
         android:gravity="center"
         android:padding="@dimen/vs_12"
         android:background="@drawable/button_dialog_vod"
@@ -102,4 +120,4 @@
         android:text="返回"
         android:textColor="@color/color_FFB800"
         android:textSize="@dimen/ts_22" />
-</LinearLayout>
+</FrameLayout>

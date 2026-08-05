@@ -121,6 +121,7 @@ public class DownloadManager {
     private void startDownload(Context context, CacheTask task) {
         executor.execute(() -> {
             task.state = CacheTask.STATE_DOWNLOADING;
+            task.errorMsg = null;
             notifyChanged();
             try {
                 String lower = task.url == null ? "" : task.url.toLowerCase();
@@ -132,6 +133,12 @@ public class DownloadManager {
             } catch (Throwable th) {
                 th.printStackTrace();
                 task.state = CacheTask.STATE_FAILED;
+                // 记录失败原因
+                String msg = th.getMessage();
+                if (msg == null || msg.trim().isEmpty()) {
+                    msg = th.getClass().getSimpleName();
+                }
+                task.errorMsg = msg.length() > 120 ? msg.substring(0, 120) : msg;
                 notifyChanged();
             }
         });

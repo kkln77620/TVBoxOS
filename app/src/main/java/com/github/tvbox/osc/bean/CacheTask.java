@@ -19,6 +19,7 @@ public class CacheTask implements Serializable {
     public int state = STATE_WAIT;
     public long progress = 0; // 已下载字节
     public long total = 0;   // 总字节(0表示未知)
+    public String errorMsg;  // 失败原因(仅失败时有效)
 
     public CacheTask() {
     }
