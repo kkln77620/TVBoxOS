@@ -82,7 +82,11 @@ public class SettingActivity extends BaseActivity {
                 if (mGridView != null && mGridView.getAdapter() != null && position >= 0 && position < mGridView.getAdapter().getItemCount()) {
                     mGridView.setSelectedPosition(position);
                     mGridView.smoothScrollToPosition(position);
+                    // 手动高亮文字颜色(确保左栏菜单同步突显)
+                    highlightMenu(position);
                 }
+                // 指示器复位(点击左栏无滑动动画时也正确)
+                updateIndicator(position, 0f);
             }
 
             @Override
@@ -98,7 +102,8 @@ public class SettingActivity extends BaseActivity {
                         sortFocused = position;
                         if (sortFocused != defaultSelected) {
                             defaultSelected = sortFocused;
-                            mViewPager.setCurrentItem(sortFocused, false);
+                            // 带滑动过渡动画切换页面
+                            mViewPager.setCurrentItem(sortFocused, true);
                         }
                     }
                 }
@@ -217,6 +222,25 @@ public class SettingActivity extends BaseActivity {
 
     private int dp(float v) {
         return (int) (getResources().getDisplayMetrics().density * v);
+    }
+
+    /**
+     * 左栏菜单文字高亮: 当前页白色, 其他页半透明
+     */
+    private void highlightMenu(int position) {
+        try {
+            int count = mGridView.getChildCount();
+            for (int i = 0; i < count; i++) {
+                View child = mGridView.getChildAt(i);
+                if (child == null) continue;
+                TextView tvName = child.findViewById(R.id.tvName);
+                if (tvName == null) continue;
+                int pos = mGridView.getChildAdapterPosition(child);
+                tvName.setTextColor(getResources().getColor(pos == position ? R.color.color_FFFFFF : R.color.color_FFFFFF_70));
+            }
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
     }
 
     private final Runnable mDataRunnable = new Runnable() {

@@ -52,6 +52,7 @@ import com.github.tvbox.osc.ui.adapter.SeriesGroupAdapter;
 import com.github.tvbox.osc.ui.dialog.DescDialog;
 import com.github.tvbox.osc.ui.dialog.PushDialog;
 import com.github.tvbox.osc.ui.dialog.QuickSearchDialog;
+import com.github.tvbox.osc.ui.dialog.TipDialog;
 import com.github.tvbox.osc.ui.fragment.PlayFragment;
 import com.github.tvbox.osc.util.DownloadManager;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
@@ -379,7 +380,25 @@ public class DetailActivity extends BaseActivity {
                 String url = getCurrentPlayUrl();
                 String name = (vodInfo == null || vodInfo.name == null) ? "视频" : vodInfo.name;
                 if (url != null && !url.isEmpty()) {
-                    DownloadManager.getInstance().addTask(DetailActivity.this, name + " 第" + (getCurrentPlayIndex() + 1) + "集", url);
+                    boolean added = DownloadManager.getInstance().addTask(DetailActivity.this, name + " 第" + (getCurrentPlayIndex() + 1) + "集", url);
+                    if (added) {
+                        // 弹窗: 已添加缓存列表 + 跳转缓存页
+                        TipDialog dialog = new TipDialog(DetailActivity.this, "已添加缓存列表", "跳转缓存页", "知道了", new TipDialog.OnListener() {
+                            @Override
+                            public void left() {
+                                jumpActivity(CacheActivity.class);
+                            }
+
+                            @Override
+                            public void right() {
+                            }
+
+                            @Override
+                            public void cancel() {
+                            }
+                        });
+                        dialog.show();
+                    }
                 } else {
                     Toast.makeText(DetailActivity.this, "当前集无播放地址, 请先选择集数", Toast.LENGTH_SHORT).show();
                 }
