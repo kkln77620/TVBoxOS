@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 首页: 左侧6大板块导航(主页/分类/搜索/收藏/历史/设置) + 右侧内容区 -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 左侧导航栏 -->
+    <LinearLayout
+        android:id="@+id/navLayout"
+        android:layout_width="@dimen/vs_170"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Logo区 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/vs_110"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="@dimen/vs_5"
+                android:layout_height="@dimen/vs_50"
+                android:layout_marginEnd="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:background="?attr/color_theme" />
+
+            <TextView
+                android:id="@+id/navTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="@string/app_name"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/ts_32"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 6大板块 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- 主页 -->
+            <LinearLayout
+                android:id="@+id/navHome"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:layout_marginTop="@dimen/vs_5"
+                android:layout_marginBottom="@dimen/vs_5"
+                android:background="@drawable/button_home_select"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivNavHome"
+                    android:layout_width="@dimen/vs_42"
+                    android:layout_height="@dimen/vs_42"
+                    android:src="@drawable/icon_home" />
+
+                <TextView
+                    android:id="@+id/tvNavHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_4"
+                    android:text="@string/nav_home"
+                    android:textColor="@color/color_FFFFFF_70"
+                    android:textSize="@dimen/ts_22" />
+            </LinearLayout>
+
+            <!-- 分类 -->
+            <LinearLayout
+                android:id="@+id/navCategory"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:layout_marginTop="@dimen/vs_5"
+                android:layout_marginBottom="@dimen/vs_5"
+                android:background="@drawable/button_home_select"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivNavCategory"
+                    android:layout_width="@dimen/vs_42"
+                    android:layout_height="@dimen/vs_42"
+                    android:src="@drawable/hm_folder" />
+
+                <TextView
+                    android:id="@+id/tvNavCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_4"
+                    android:text="@string/nav_category"
+                    android:textColor="@color/color_FFFFFF_70"
+                    android:textSize="@dimen/ts_22" />
+            </LinearLayout>
+
+            <!-- 搜索 -->
+            <LinearLayout
+                android:id="@+id/navSearch"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:layout_marginTop="@dimen/vs_5"
+                android:layout_marginBottom="@dimen/vs_5"
+                android:background="@drawable/button_home_select"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivNavSearch"
+                    android:layout_width="@dimen/vs_42"
+                    android:layout_height="@dimen/vs_42"
+                    android:src="@drawable/hm_search" />
+
+                <TextView
+                    android:id="@+id/tvNavSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_4"
+                    android:text="@string/nav_search"
+                    android:textColor="@color/color_FFFFFF_70"
+                    android:textSize="@dimen/ts_22" />
+            </LinearLayout>
+
+            <!-- 收藏 -->
+            <LinearLayout
+                android:id="@+id/navCollect"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:layout_marginTop="@dimen/vs_5"
+                android:layout_marginBottom="@dimen/vs_5"
+                android:background="@drawable/button_home_select"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivNavCollect"
+                    android:layout_width="@dimen/vs_42"
+                    android:layout_height="@dimen/vs_42"
+                    android:src="@drawable/hm_fav" />
+
+                <TextView
+                    android:id="@+id/tvNavCollect"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_4"
+                    android:text="@string/nav_collect"
+                    android:textColor="@color/color_FFFFFF_70"
+                    android:textSize="@dimen/ts_22" />
+            </LinearLayout>
+
+            <!-- 历史 -->
+            <LinearLayout
+                android:id="@+id/navHistory"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:layout_marginTop="@dimen/vs_5"
+                android:layout_marginBottom="@dimen/vs_5"
+                android:background="@drawable/button_home_select"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivNavHistory"
+                    android:layout_width="@dimen/vs_42"
+                    android:layout_height="@dimen/vs_42"
+                    android:src="@drawable/hm_history" />
+
+                <TextView
+                    android:id="@+id/tvNavHistory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_4"
+                    android:text="@string/nav_history"
+                    android:textColor="@color/color_FFFFFF_70"
+                    android:textSize="@dimen/ts_22" />
+            </LinearLayout>
+
+            <!-- 缓存 -->
+            <LinearLayout
+                android:id="@+id/navCache"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:layout_marginTop="@dimen/vs_5"
+                android:layout_marginBottom="@dimen/vs_5"
+                android:background="@drawable/button_home_select"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivNavCache"
+                    android:layout_width="@dimen/vs_42"
+                    android:layout_height="@dimen/vs_42"
+                    android:src="@drawable/ic_cache" />
+
+                <TextView
+                    android:id="@+id/tvNavCache"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_4"
+                    android:text="缓存"
+                    android:textColor="@color/color_FFFFFF_70"
+                    android:textSize="@dimen/ts_22" />
+            </LinearLayout>
+
+            <!-- 设置 -->
+            <LinearLayout
+                android:id="@+id/navSetting"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:layout_marginTop="@dimen/vs_5"
+                android:layout_marginBottom="@dimen/vs_5"
+                android:background="@drawable/button_home_select"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivNavSetting"
+                    android:layout_width="@dimen/vs_42"
+                    android:layout_height="@dimen/vs_42"
+                    android:src="@drawable/icon_setting" />
+
+                <TextView
+                    android:id="@+id/tvNavSetting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/vs_4"
+                    android:text="@string/nav_setting"
+                    android:textColor="@color/color_FFFFFF_70"
+                    android:textSize="@dimen/ts_22" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 右侧内容区 -->
+    <LinearLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="@dimen/vs_0"
+        android:layout_height="@dimen/vs_0"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/navLayout"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- 顶部栏 -->
+        <LinearLayout
+            android:id="@+id/topLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/vs_50"
+            android:layout_marginTop="@dimen/vs_20"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/vs_50"
+            android:paddingRight="@dimen/vs_50">
+
+            <View
+                android:layout_width="@dimen/vs_5"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/vs_8"
+                android:layout_marginEnd="@dimen/vs_12"
+                android:layout_marginRight="@dimen/vs_12"
+                android:layout_marginBottom="@dimen/vs_8"
+                android:background="?attr/color_theme" />
+
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="@dimen/vs_0"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/shape_toplayout_tvname"
+                android:clickable="true"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="false"
+                android:gravity="left|center_vertical"
+                android:nextFocusRight="@id/tvWifi"
+                android:singleLine="true"
+                android:text="@string/app_name"
+                android:textAlignment="gravity"
+                android:textColor="@color/font_home_selector"
+                android:textSize="@dimen/ts_30"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/tvWifi"
+                android:layout_width="@dimen/vs_50"
+                android:layout_height="@dimen/vs_50"
+                android:layout_marginStart="@dimen/vs_15"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:layout_marginEnd="@dimen/vs_15"
+                android:layout_marginRight="@dimen/vs_15"
+                android:background="@drawable/button_dialog_vod"
+                android:clickable="true"
+                android:focusable="true"
+                android:nextFocusLeft="@id/tvName"
+                android:padding="@dimen/vs_5"
+                android:src="@drawable/hm_wifi_no" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/vs_15"
+                android:layout_marginLeft="@dimen/vs_15"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="right|center_vertical"
+                android:textAlignment="gravity"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/ts_22"
+                android:textStyle="bold"
+                tools:text="DateTime" />
+        </LinearLayout>
+
+        <!-- 分类导航横排 -->
+        <com.owen.tvrecyclerview.widget.TvRecyclerView
+            android:id="@+id/mGridViewCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vs_10"
+            android:layout_marginBottom="@dimen/vs_10"
+            android:paddingLeft="@dimen/vs_50"
+            android:paddingRight="@dimen/vs_50"
+            app:tv_selectedItemIsCentered="true" />
+
+        <!-- 内容区 -->
+        <com.github.tvbox.osc.ui.tv.widget.NoScrollViewPager
+            android:id="@+id/mViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

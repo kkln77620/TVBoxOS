@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 配置新增/编辑对话框 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_dialog_bg_main"
+    android:orientation="vertical"
+    android:padding="@dimen/vs_30">
+
+    <TextView
+        android:id="@+id/tvDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="新增配置"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_28"
+        android:textStyle="bold" />
+
+    <!-- 名称 -->
+    <EditText
+        android:id="@+id/inputConfigName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_20"
+        android:background="@drawable/input_dialog_api_input"
+        android:hint="配置名称 (如: 主配置)"
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="@dimen/vs_10"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/color_FFFFFF_50"
+        android:textSize="@dimen/ts_22" />
+
+    <!-- 配置地址 -->
+    <EditText
+        android:id="@+id/inputConfigApi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_10"
+        android:background="@drawable/input_dialog_api_input"
+        android:hint="配置地址 (必填)"
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="@dimen/vs_10"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/color_FFFFFF_50"
+        android:textSize="@dimen/ts_22" />
+
+    <!-- 直播地址 -->
+    <EditText
+        android:id="@+id/inputConfigLive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_10"
+        android:background="@drawable/input_dialog_api_input"
+        android:hint="直播地址 (可选)"
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="@dimen/vs_10"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/color_FFFFFF_50"
+        android:textSize="@dimen/ts_22" />
+
+    <!-- EPG地址 -->
+    <EditText
+        android:id="@+id/inputConfigEpg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_10"
+        android:background="@drawable/input_dialog_api_input"
+        android:hint="EPG地址 (可选)"
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="@dimen/vs_10"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/color_FFFFFF_50"
+        android:textSize="@dimen/ts_22" />
+
+    <!-- 代理 -->
+    <EditText
+        android:id="@+id/inputConfigProxy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_10"
+        android:background="@drawable/input_dialog_api_input"
+        android:hint="代理 (可选, 如 socks5://127.0.0.1:1080)"
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="@dimen/vs_10"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/color_FFFFFF_50"
+        android:textSize="@dimen/ts_22" />
+
+    <!-- 启用开关 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_20"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="启用该配置"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_22" />
+
+        <TextView
+            android:id="@+id/btnToggleEnabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_dialog_main"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/vs_10"
+            android:text="已启用"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_20" />
+    </LinearLayout>
+
+    <!-- 按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_20"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnConfigCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button_dialog_vod"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:padding="@dimen/vs_12"
+            android:text="取消"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_22" />
+
+        <TextView
+            android:id="@+id/btnConfigSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/vs_15"
+            android:layout_weight="1"
+            android:background="@drawable/button_dialog_main"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:padding="@dimen/vs_12"
+            android:text="保存"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_22" />
+    </LinearLayout>
+</LinearLayout>

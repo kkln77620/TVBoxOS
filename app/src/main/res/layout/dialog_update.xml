@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/shape_dialog_bg_main"
+    android:orientation="vertical"
+    android:padding="@dimen/vs_30">
+
+    <TextView
+        android:id="@+id/update_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="发现新版本"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="@dimen/ts_28"
+        android:textStyle="bold"
+        android:paddingBottom="@dimen/vs_20" />
+
+    <TextView
+        android:id="@+id/update_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="@dimen/ts_50"
+        android:lineSpacingMultiplier="0"
+        android:maxHeight="300dp"
+        android:scrollbars="vertical"
+        android:text="更新内容：\n"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="@dimen/ts_24"
+        android:paddingBottom="@dimen/vs_20" />
+
+    <ProgressBar
+        android:id="@+id/update_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/vs_10"
+        android:max="100"
+        android:progress="0"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/update_progress_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="下载进度: 0%"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="@dimen/ts_22"
+        android:visibility="gone"
+        android:layout_marginBottom="@dimen/vs_20" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/update_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/vs_10"
+            android:layout_weight="1"
+            android:text="取消"
+            android:textSize="@dimen/ts_24" />
+
+        <Button
+            android:id="@+id/update_confirm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/vs_10"
+            android:layout_weight="1"
+            android:text="立即更新"
+            android:textSize="@dimen/ts_24" />
+    </LinearLayout>
+
+</LinearLayout>

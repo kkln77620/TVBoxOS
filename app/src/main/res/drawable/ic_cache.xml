@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 缓存下载图标: 向下箭头 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,3C12.55,3 13,3.45 13,4V12.59L16.59,9L18,10.41L12,16.41L6,10.41L7.41,9L11,12.59V4C11,3.45 11.45,3 12,3ZM5,18H19V20H5V18Z" />
+</vector>

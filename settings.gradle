@@ -1,0 +1,4 @@
+rootProject.name = "tvbox os"
+include ':app'
+include ':quickjs'
+include ':pyramid'

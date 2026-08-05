@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 子数据源项 -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvSiteName"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/button_dialog_vod"
+    android:gravity="center"
+    android:padding="@dimen/vs_12"
+    android:textColor="@android:color/white"
+    android:textSize="@dimen/ts_20" />

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_setting_model_focus"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/vs_15">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvTaskName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_22" />
+
+        <ProgressBar
+            android:id="@+id/taskProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vs_5"
+            android:max="100" />
+
+        <TextView
+            android:id="@+id/tvTaskStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/vs_3"
+            android:textColor="@color/color_FFFFFF_70"
+            android:textSize="@dimen/ts_18" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btnTaskPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/vs_15"
+        android:layout_marginLeft="@dimen/vs_15"
+        android:background="@drawable/button_dialog_main"
+        android:focusable="true"
+        android:padding="@dimen/vs_8"
+        android:text="播放"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_20" />
+
+    <TextView
+        android:id="@+id/btnTaskDel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/vs_10"
+        android:layout_marginLeft="@dimen/vs_10"
+        android:background="@drawable/button_dialog_vod"
+        android:focusable="true"
+        android:padding="@dimen/vs_8"
+        android:text="删除"
+        android:textColor="@color/color_FFB800"
+        android:textSize="@dimen/ts_20" />
+</LinearLayout>

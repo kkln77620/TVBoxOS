@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 首页数据源分组选择: 上面大配置横条 + 下面子源网格 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_dialog_bg_main"
+    android:orientation="vertical"
+    android:padding="@dimen/vs_25">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="选择数据源"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_26"
+        android:textStyle="bold" />
+
+    <!-- 大配置横条(可滑动) -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_15"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/configBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <!-- 子源网格 -->
+    <com.owen.tvrecyclerview.widget.TvRecyclerView
+        android:id="@+id/siteList"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/vs_300"
+        android:layout_marginTop="@dimen/vs_10"
+        android:clipToPadding="false"
+        android:scrollbars="none" />
+</LinearLayout>

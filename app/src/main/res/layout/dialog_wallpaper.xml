@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 更换壁纸二级菜单 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_dialog_bg_main"
+    android:orientation="vertical"
+    android:padding="@dimen/vs_25">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="更换壁纸"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_26"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/btnBuiltinWallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_15"
+        android:background="@drawable/button_dialog_main"
+        android:focusable="true"
+        android:gravity="center"
+        android:padding="@dimen/vs_12"
+        android:text="内置壁纸(按顺序切换)"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_22" />
+
+    <TextView
+        android:id="@+id/btnUploadWallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_10"
+        android:background="@drawable/button_dialog_main"
+        android:focusable="true"
+        android:gravity="center"
+        android:padding="@dimen/vs_12"
+        android:text="上传壁纸(仅图片)"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_22" />
+</LinearLayout>

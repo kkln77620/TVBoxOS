@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 配置列表项 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/vs_8"
+    android:background="@drawable/shape_setting_model_focus"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/vs_15">
+
+    <!-- 启用状态 -->
+    <TextView
+        android:id="@+id/tvEnabled"
+        android:layout_width="@dimen/vs_50"
+        android:layout_height="@dimen/vs_50"
+        android:background="@drawable/button_dialog_vod"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="✓"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_24"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/vs_15"
+        android:layout_marginRight="@dimen/vs_15"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvConfigName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_22"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvConfigUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:textColor="@color/color_FFFFFF_70"
+            android:textSize="@dimen/ts_16" />
+    </LinearLayout>
+
+    <!-- 设置主页配置 -->
+    <TextView
+        android:id="@+id/btnHomeConfig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/vs_25"
+        android:layout_marginStart="@dimen/vs_25"
+        android:background="@drawable/button_dialog_main"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/vs_10"
+        android:text="设为主页源"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_20" />
+
+    <!-- 编辑 -->
+    <TextView
+        android:id="@+id/btnEditConfig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/vs_25"
+        android:layout_marginStart="@dimen/vs_25"
+        android:background="@drawable/button_dialog_main"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/vs_10"
+        android:text="编辑"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_20" />
+
+    <!-- 删除 -->
+    <TextView
+        android:id="@+id/btnDelConfig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/vs_25"
+        android:layout_marginStart="@dimen/vs_25"
+        android:background="@drawable/button_dialog_vod"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/vs_10"
+        android:text="删除"
+        android:textColor="@color/color_FFB800"
+        android:textSize="@dimen/ts_20" />
+</LinearLayout>
