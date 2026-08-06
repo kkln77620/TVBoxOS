@@ -10,6 +10,7 @@
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:scrollbars="none"
+        android:paddingTop="@dimen/vs_45"
         android:paddingBottom="@dimen/vs_45">
 
         <LinearLayout
@@ -38,10 +39,12 @@
                             <LinearLayout
                                 android:id="@+id/llLocale"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
+                                android:layout_marginRight="@dimen/vs_10"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -71,8 +74,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -80,10 +81,11 @@
                             <LinearLayout
                                 android:id="@+id/llTheme"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -113,8 +115,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -131,10 +131,12 @@
                             <LinearLayout
                                 android:id="@+id/llWp"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
+                                android:layout_marginRight="@dimen/vs_10"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -157,8 +159,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -166,10 +166,11 @@
                             <LinearLayout
                                 android:id="@+id/llWpRecovery"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -192,8 +193,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -210,12 +209,14 @@
                         <LinearLayout
                             android:id="@+id/llRender"
                             android:layout_width="@dimen/vs_0"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="@dimen/vs_5"
-                            android:layout_marginLeft="@dimen/vs_5"
-                            android:layout_marginEnd="@dimen/vs_5"
-                            android:layout_marginRight="@dimen/vs_5"
-                            android:layout_weight="1"
+                                android:layout_marginRight="@dimen/vs_10"
+                                android:layout_weight="1"
+                            android:layout_height="@dimen/vs_50"
+
+
+
+
+
                             android:background="@drawable/shape_setting_model_focus"
                             android:focusable="true"
                             android:gravity="center_vertical"
@@ -245,8 +246,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/vs_10"
-                                android:layout_marginLeft="@dimen/vs_10"
                                 android:text=">"
                                 android:textColor="@android:color/white"
                                 android:textSize="@dimen/ts_24" />
@@ -254,12 +253,13 @@
                         <LinearLayout
                             android:id="@+id/llSearchView"
                             android:layout_width="@dimen/vs_0"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="@dimen/vs_5"
-                            android:layout_marginLeft="@dimen/vs_5"
-                            android:layout_marginEnd="@dimen/vs_5"
-                            android:layout_marginRight="@dimen/vs_5"
-                            android:layout_weight="1"
+                                android:layout_weight="1"
+                            android:layout_height="@dimen/vs_50"
+
+
+
+
+
                             android:background="@drawable/shape_setting_model_focus"
                             android:focusable="true"
                             android:gravity="center_vertical"
@@ -289,8 +289,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/vs_10"
-                                android:layout_marginLeft="@dimen/vs_10"
                                 android:text=">"
                                 android:textColor="@android:color/white"
                                 android:textSize="@dimen/ts_24" />
@@ -307,12 +305,14 @@
                         <LinearLayout
                             android:id="@+id/llParseWebVew"
                             android:layout_width="@dimen/vs_0"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="@dimen/vs_5"
-                            android:layout_marginLeft="@dimen/vs_5"
-                            android:layout_marginEnd="@dimen/vs_5"
-                            android:layout_marginRight="@dimen/vs_5"
-                            android:layout_weight="1"
+                                android:layout_marginRight="@dimen/vs_10"
+                                android:layout_weight="1"
+                            android:layout_height="@dimen/vs_50"
+
+
+
+
+
                             android:background="@drawable/shape_setting_model_focus"
                             android:focusable="true"
                             android:gravity="center_vertical"
@@ -343,8 +343,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/vs_10"
-                                android:layout_marginLeft="@dimen/vs_10"
                                 android:text=">"
                                 android:textColor="@android:color/white"
                                 android:textSize="@dimen/ts_24" />
@@ -352,12 +350,13 @@
                         <LinearLayout
                             android:id="@+id/llDns"
                             android:layout_width="@dimen/vs_0"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="@dimen/vs_5"
-                            android:layout_marginLeft="@dimen/vs_5"
-                            android:layout_marginEnd="@dimen/vs_5"
-                            android:layout_marginRight="@dimen/vs_5"
-                            android:layout_weight="1"
+                                android:layout_weight="1"
+                            android:layout_height="@dimen/vs_50"
+
+
+
+
+
                             android:background="@drawable/shape_setting_model_focus"
                             android:focusable="true"
                             android:gravity="center_vertical"
@@ -387,8 +386,6 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/vs_10"
-                                android:layout_marginLeft="@dimen/vs_10"
                                 android:text=">"
                                 android:textColor="@android:color/white"
                                 android:textSize="@dimen/ts_24" />
@@ -405,10 +402,12 @@
                             <LinearLayout
                                 android:id="@+id/llBackup"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
+                                android:layout_marginRight="@dimen/vs_10"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -431,8 +430,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -440,12 +437,13 @@
     <LinearLayout
                                 android:id="@+id/llMultiConfig"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -475,8 +473,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -493,10 +489,12 @@
                             <LinearLayout
                                 android:id="@+id/llReset"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
+                                android:layout_marginRight="@dimen/vs_10"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -519,8 +517,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -528,12 +524,13 @@
                             <LinearLayout
                                 android:id="@+id/llAbout"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -556,8 +553,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -569,8 +564,8 @@
 android:id="@+id/showFastSearch"
 android:layout_width="match_parent"
 android:layout_height="@dimen/vs_50"
-android:layout_marginEnd="@dimen/vs_5"
-android:layout_marginRight="@dimen/vs_5"
+
+
 android:layout_marginBottom="@dimen/vs_10"
 android:background="@drawable/shape_setting_model_focus"
 android:focusable="true"
@@ -601,8 +596,6 @@ android:paddingRight="@dimen/vs_20">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/vs_10"
-                                android:layout_marginLeft="@dimen/vs_10"
                                 android:text=">"
                                 android:textColor="@android:color/white"
                                 android:textSize="@dimen/ts_24" />

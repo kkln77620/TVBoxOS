@@ -380,6 +380,11 @@ public class DetailActivity extends BaseActivity {
                 String url = getCurrentPlayUrl();
                 String name = (vodInfo == null || vodInfo.name == null) ? "视频" : vodInfo.name;
                 if (url != null && !url.isEmpty()) {
+                    // 协议地址(如 noprotocol:)需播放器解析, 提示走播放自动缓存
+                    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                        Toast.makeText(DetailActivity.this, "该地址需播放器解析, 播放本集后会自动缓存", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     boolean added = DownloadManager.getInstance().addTask(DetailActivity.this, name + " 第" + (getCurrentPlayIndex() + 1) + "集", url);
                     if (added) {
                         // 上下排版弹窗: 已添加缓存列表 + 跳转缓存页/知道了

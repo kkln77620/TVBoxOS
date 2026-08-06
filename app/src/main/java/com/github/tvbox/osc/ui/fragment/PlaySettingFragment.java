@@ -1,21 +1,22 @@
 package com.github.tvbox.osc.ui.fragment;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
-
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.base.BaseLazyFragment;
 import com.github.tvbox.osc.player.thirdparty.Kodi;
 import com.github.tvbox.osc.player.thirdparty.MXPlayer;
 import com.github.tvbox.osc.player.thirdparty.ReexPlayer;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
+import com.github.tvbox.osc.ui.dialog.DanmuUrlDialog;
 import com.github.tvbox.osc.ui.dialog.MediaSettingDialog;
 import com.github.tvbox.osc.ui.dialog.SelectDialog;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.HawkConfig;
+import com.github.tvbox.osc.util.HawkUtils;
 import com.github.tvbox.osc.util.PlayerHelper;
 import com.orhanobut.hawk.Hawk;
 
@@ -52,6 +53,16 @@ public class PlaySettingFragment extends BaseLazyFragment {
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
         tvVideoPurifyText = findViewById(R.id.tvVideoPurifyText);
         tvVideoPurifyText.setText(Hawk.get(HawkConfig.VIDEO_PURIFY, true) ? "开启" : "关闭");
+        // 弹幕地址
+        TextView tvDanmuUrl = findViewById(R.id.tvDanmuUrl);
+        tvDanmuUrl.setText(TextUtils.isEmpty(HawkUtils.getDanmuUrl()) ? "未设置" : HawkUtils.getDanmuUrl());
+        findViewById(R.id.llDanmu).setOnClickListener(v -> {
+            FastClickCheckUtil.check(v);
+            new DanmuUrlDialog(getContext(), HawkUtils.getDanmuUrl(), url -> {
+                HawkUtils.setDanmuUrl(url);
+                tvDanmuUrl.setText(TextUtils.isEmpty(url) ? "未设置" : url);
+            }).show();
+        });
 
         // 窗口预览
         findViewById(R.id.showPreview).setOnClickListener(new View.OnClickListener() {

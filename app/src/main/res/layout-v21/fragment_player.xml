@@ -10,6 +10,7 @@
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:scrollbars="none"
+        android:paddingTop="@dimen/vs_45"
         android:paddingBottom="@dimen/vs_45">
 
         <LinearLayout
@@ -38,12 +39,14 @@
                             <LinearLayout
                                 android:id="@+id/showPreview"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
+                                android:layout_marginRight="@dimen/vs_10"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -73,8 +76,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -82,10 +83,11 @@
                             <LinearLayout
                                 android:id="@+id/llScale"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -115,8 +117,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -133,10 +133,12 @@
                             <LinearLayout
                                 android:id="@+id/llBackgroundPlay"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
+                                android:layout_marginRight="@dimen/vs_10"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -166,8 +168,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -175,10 +175,11 @@
                             <LinearLayout
                                 android:id="@+id/llPlay"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginEnd="@dimen/vs_5"
-                                android:layout_marginRight="@dimen/vs_5"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -208,8 +209,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -226,10 +225,12 @@
                             <LinearLayout
                                 android:id="@+id/llMediaSetting"
                                 android:layout_width="@dimen/vs_0"
-                                android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/vs_5"
-                                android:layout_marginLeft="@dimen/vs_5"
+                                android:layout_marginRight="@dimen/vs_10"
                                 android:layout_weight="1"
+                                android:layout_height="@dimen/vs_50"
+
+
+
                                 android:background="@drawable/shape_setting_model_focus"
                                 android:focusable="true"
                                 android:gravity="center_vertical"
@@ -259,8 +260,6 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/vs_10"
-                                    android:layout_marginLeft="@dimen/vs_10"
                                     android:text=">"
                                     android:textColor="@android:color/white"
                                     android:textSize="@dimen/ts_24" />
@@ -268,8 +267,9 @@
                             <LinearLayout
                                     android:id="@+id/llVideoPurify"
                                     android:layout_width="@dimen/vs_0"
-                                    android:layout_height="match_parent"
-                                    android:layout_weight="1"
+                                android:layout_weight="1"
+                                    android:layout_height="@dimen/vs_50"
+
                                     android:background="@drawable/shape_setting_model_focus"
                                     android:focusable="true"
                                     android:gravity="center_vertical"
@@ -295,15 +295,55 @@
                                 <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginStart="@dimen/vs_10"
-                                        android:layout_marginLeft="@dimen/vs_10"
                                         android:text=">"
                                         android:textColor="@android:color/white"
                                         android:textSize="@dimen/ts_24" />
                             </LinearLayout>
 </LinearLayout>
+<LinearLayout
+                                android:id="@+id/llDanmu"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/vs_50"
+                                android:layout_marginBottom="@dimen/vs_10"
+                                android:background="@drawable/shape_setting_model_focus"
+                                android:focusable="true"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:paddingLeft="@dimen/vs_20"
+                                android:paddingRight="@dimen/vs_20">
 
-            </LinearLayout>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/mn_danmu"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="@dimen/ts_24" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1" />
+
+                                <TextView
+                                    android:id="@+id/tvDanmuUrl"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:ellipsize="middle"
+                                    android:maxWidth="@dimen/vs_200"
+                                    android:singleLine="true"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="@dimen/ts_24" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/vs_10"
+                                    android:layout_marginLeft="@dimen/vs_10"
+                                    android:text=">"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="@dimen/ts_24" />
+                            </LinearLayout>
+        </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

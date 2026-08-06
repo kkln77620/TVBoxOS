@@ -27,12 +27,14 @@ public class TipDialog extends BaseDialog {
             @Override
             public void onClick(View v) {
                 listener.left();
+                dismiss();
             }
         });
         rightBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.right();
+                dismiss();
             }
         });
         setOnCancelListener(new OnCancelListener() {

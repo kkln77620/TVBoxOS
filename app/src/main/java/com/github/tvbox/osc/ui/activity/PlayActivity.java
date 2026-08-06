@@ -80,6 +80,7 @@ import com.github.tvbox.osc.ui.dialog.SelectDialog;
 import com.github.tvbox.osc.ui.dialog.SubtitleDialog;
 import com.github.tvbox.osc.util.AdBlocker;
 import com.github.tvbox.osc.util.DefaultConfig;
+import com.github.tvbox.osc.util.DownloadManager;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.HawkUtils;
@@ -812,6 +813,23 @@ public class PlayActivity extends BaseActivity {
 
     void startPlayUrl(String url, HashMap<String, String> headers) {
         final String finalUrl = url;
+        // 自动缓存: 播放成功即后台全速下载本集(复用播放参数, 静默入队)
+        try {
+            if (finalUrl != null && !finalUrl.startsWith("http://127.0.0.1")
+                    && !finalUrl.startsWith("https://127.0.0.1")
+                    && mVodInfo != null && mVodInfo.name != null) {
+                String cacheName = mVodInfo.name;
+                try {
+                    VodInfo.VodSeries vs = mVodInfo.seriesMap.get(mVodInfo.playFlag).get(mVodInfo.playIndex);
+                    if (vs != null && vs.name != null) {
+                        cacheName = mVodInfo.name + " " + vs.name;
+                    }
+                } catch (Throwable ignored) {
+                }
+                DownloadManager.getInstance().addTask(this, cacheName, finalUrl, headers, true);
+            }
+        } catch (Throwable ignored) {
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1051,6 +1069,9 @@ public class PlayActivity extends BaseActivity {
     };
 
     private void checkDanmu(String danmu) {
+        if (TextUtils.isEmpty(danmu)) {
+            danmu = HawkUtils.getDanmuUrl();
+        }
         danmuText = danmu;
         mDanmuView.release();
         mDanmuView.setVisibility(TextUtils.isEmpty(danmuText) || !HawkUtils.getDanmuOpen() ? View.GONE : View.VISIBLE);
