@@ -142,10 +142,12 @@ public class Updater {
         if (updateDialog != null && updateDialog.isShowing()) {
             updateDialog.dismiss();
         }
-        
+
         updateDialog = new UpdateDialog(activity);
         updateDialog.setVersion(info.name);
         updateDialog.setDescription(info.desc);
+        // 迅雷下载: 点击直接跳转迅雷
+        updateDialog.setXunleiUrl("https://pan.xunlei.com/s/VOzJhB3F1XK4oIjODWODOmRQA1?pwd=tdpz");
         updateDialog.setOnConfirmListener(() -> {
             downloadApk(info.apkUrl);
         });

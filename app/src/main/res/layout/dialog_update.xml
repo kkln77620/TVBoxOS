@@ -18,14 +18,15 @@
         android:textStyle="bold"
         android:paddingBottom="@dimen/vs_20" />
 
+    <!-- 更新内容: 超出可滑动 -->
     <TextView
         android:id="@+id/update_desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:lineSpacingExtra="@dimen/ts_50"
-        android:lineSpacingMultiplier="0"
+        android:lineSpacingExtra="@dimen/vs_8"
         android:maxHeight="300dp"
         android:scrollbars="vertical"
+        android:focusable="true"
         android:text="更新内容：\n"
         android:textColor="@color/color_FFFFFF"
         android:textSize="@dimen/ts_24"
@@ -52,6 +53,7 @@
         android:visibility="gone"
         android:layout_marginBottom="@dimen/vs_20" />
 
+    <!-- 两个下载按钮: GitHub下载 | 迅雷下载 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,22 +61,29 @@
         android:gravity="center">
 
         <Button
-            android:id="@+id/update_cancel"
+            android:id="@+id/update_confirm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/vs_10"
             android:layout_weight="1"
-            android:text="取消"
+            android:text="GitHub下载"
             android:textSize="@dimen/ts_24" />
 
         <Button
-            android:id="@+id/update_confirm"
+            android:id="@+id/update_xunlei"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/vs_10"
             android:layout_weight="1"
-            android:text="立即更新"
+            android:text="迅雷下载"
             android:textSize="@dimen/ts_24" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/update_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_10"
+        android:text="取消"
+        android:textSize="@dimen/ts_22" />
 
 </LinearLayout>
