@@ -7,6 +7,7 @@ import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.bean.IJKCode;
 import com.github.tvbox.osc.player.EXOmPlayer;
 import com.github.tvbox.osc.player.IjkmPlayer;
+import com.github.tvbox.osc.player.VlcPlayer;
 import com.github.tvbox.osc.player.render.SurfaceRenderViewFactory;
 import com.orhanobut.hawk.Hawk;
 
@@ -33,11 +34,13 @@ public class PlayerHelper {
         String ijkCode = Hawk.get(HawkConfig.IJK_CODEC, "软解码");
         int scale = Hawk.get(HawkConfig.PLAY_SCALE, 0);
         try {
-            playerType = playerCfg.getInt("pl");
-            //就我遇到的问题是 Exo 在 TextureView 黑屏 调整设置中的渲染模式无法生效
-            //renderType = playerCfg.getInt("pr");//该值无法修改，一旦确认该值后续无法进行修改 就是在设置选的 类型无法应用
-            ijkCode = playerCfg.getString("ijk");
-            scale = playerCfg.getInt("sc");
+            if (playerCfg != null) { // null保护: 本地文件直链播放无配置
+                playerType = playerCfg.getInt("pl");
+                //就我遇到的问题是 Exo 在 TextureView 黑屏 调整设置中的渲染模式无法生效
+                //renderType = playerCfg.getInt("pr");//该值无法修改，一旦确认该值后续无法进行修改 就是在设置选的 类型无法应用
+                ijkCode = playerCfg.getString("ijk");
+                scale = playerCfg.getInt("sc");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -60,6 +63,13 @@ public class PlayerHelper {
             };
         } else if (playerType == 3) {
             playerFactory = AliyunMediaPlayerFactory.create();
+        } else if (playerType == 4) {
+            playerFactory = new PlayerFactory<VlcPlayer>() {
+                @Override
+                public VlcPlayer createPlayer(Context context) {
+                    return new VlcPlayer(context);
+                }
+            };
         } else {
             playerFactory = AndroidMediaPlayerFactory.create();
         }
@@ -103,6 +113,13 @@ public class PlayerHelper {
             };
         } else if (playType == 3) {
             playerFactory = AliyunMediaPlayerFactory.create();
+        } else if (playType == 4) {
+            playerFactory = new PlayerFactory<VlcPlayer>() {
+                @Override
+                public VlcPlayer createPlayer(Context context) {
+                    return new VlcPlayer(context);
+                }
+            };
         } else {
             playerFactory = AndroidMediaPlayerFactory.create();
         }
@@ -132,6 +149,8 @@ public class PlayerHelper {
             return "Exo";
         } else if (playType == 3) {
             return "阿里";
+        } else if (playType == 4) {
+            return "VLC";
         } else if (playType == 10) {
             return "MX";
         } else if (playType == 11) {
@@ -141,6 +160,20 @@ public class PlayerHelper {
         } else {
             return "系统";
         }
+    }
+
+    /**
+     * 播放失败自动切换队列: 按兼容性排序, 排除当前内核
+     * IJK(硬软解全能) → Exo(现代格式) → VLC(全格式兜底) → 系统(最后)
+     */
+    public static int[] getSwitchQueue(int currentType) {
+        int[] all = {1, 2, 4, 0};
+        int[] queue = new int[all.length];
+        int idx = 0;
+        for (int t : all) {
+            if (t != currentType) queue[idx++] = t;
+        }
+        return queue;
     }
 
     public static String getRenderName(int renderType) {

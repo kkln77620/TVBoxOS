@@ -1,6 +1,7 @@
 package com.github.tvbox.osc.base;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +20,7 @@ import com.github.tvbox.osc.server.ControlManager;
 import com.github.tvbox.osc.util.AppManager;
 import com.github.tvbox.osc.util.EpgUtil;
 import com.github.tvbox.osc.util.FileUtils;
+import com.github.tvbox.osc.util.FloatLogManager;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LocaleHelper;
 import com.github.tvbox.osc.util.LOG;
@@ -94,6 +96,40 @@ public class App extends MultiDexApplication {
         super.onCreate();
         SubtitleHelper.initSubtitleColor(this);
         initParams();
+        // 悬浮日志: 全局观察所有 Activity 活动(设置页可开关)
+        registerActivityLifecycleCallbacks(new android.app.Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+                FloatLogManager.getInstance().setCurrentPage(activity.getClass().getSimpleName());
+                FloatLogManager.getInstance().append("打开: " + activity.getClass().getSimpleName());
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+                FloatLogManager.getInstance().append("暂停: " + activity.getClass().getSimpleName());
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+                FloatLogManager.getInstance().append("关闭: " + activity.getClass().getSimpleName());
+            }
+        });
         // takagen99 : Initialize Locale
         initLocale();
         // 首次使用: 弹出使用手册(如何配置地址), 只弹一次

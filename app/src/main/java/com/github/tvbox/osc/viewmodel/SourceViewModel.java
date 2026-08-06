@@ -20,12 +20,13 @@ import com.github.tvbox.osc.bean.MovieSort;
 import com.github.tvbox.osc.bean.SourceBean;
 import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.util.DefaultConfig;
+import com.github.tvbox.osc.util.FileUtils;
+import com.github.tvbox.osc.util.FloatLogManager;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.MD5;
 import com.github.tvbox.osc.util.thunder.Thunder;
 import com.github.tvbox.osc.util.urlhttp.OkHttpUtil;
-import com.github.tvbox.osc.util.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -765,6 +766,12 @@ public class SourceViewModel extends ViewModel {
     public ExecutorService threadPoolGetPlay = null;
 
     public void getPlay(String sourceKey, String playFlag, String progressKey, String url, String subtitleKey) {
+        // 悬浮日志: 记录解析行为
+        try {
+            String show = url == null ? "null" : (url.length() > 90 ? url.substring(0, 90) + "..." : url);
+            FloatLogManager.getInstance().append("解析:开始 " + show);
+        } catch (Throwable ignored) {
+        }
         if (threadPoolGetPlay != null) threadPoolGetPlay.shutdownNow();
         threadPoolGetPlay = Executors.newFixedThreadPool(2);
         Callable<JSONObject> callable = () -> {
@@ -804,9 +811,15 @@ public class SourceViewModel extends ViewModel {
             Future<JSONObject> future = threadPoolGetPlay.submit(callable);
             try {
                 JSONObject jsonObject = future.get(15, TimeUnit.SECONDS);
+                if (jsonObject != null && jsonObject.has("url")) {
+                    FloatLogManager.getInstance().append("解析:成功");
+                } else {
+                    FloatLogManager.getInstance().append("解析:无结果");
+                }
                 playResult.postValue(jsonObject);
             } catch (Throwable e) {
                 e.printStackTrace();
+                FloatLogManager.getInstance().append("解析:异常/超时 " + (e.getMessage() == null ? "" : e.getMessage()));
                 playResult.postValue(null);
             }
         });

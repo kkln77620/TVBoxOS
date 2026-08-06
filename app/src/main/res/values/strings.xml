@@ -279,4 +279,6 @@
 
     <!-- 结束 视频设置 相关配置 -->
 
+    <string name="contact_author">联系作者</string>
+    <string name="float_log">悬浮日志</string>
 </resources>

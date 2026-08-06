@@ -54,6 +54,7 @@ import com.github.tvbox.osc.ui.tv.QRCodeGen;
 import com.github.tvbox.osc.ui.tv.widget.CustomEditText;
 import com.github.tvbox.osc.ui.tv.widget.SearchKeyboard;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
+import com.github.tvbox.osc.util.FloatLogManager;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.PinyinUtil;
 import com.github.tvbox.osc.util.SearchHelper;
@@ -716,6 +717,7 @@ public class SearchActivity extends BaseActivity {
     private void search(String title) {
         cancel();
         showLoading();
+        FloatLogManager.getInstance().append("搜索:开始 " + title);
         this.searchTitle = title;
         // 记录查询词(小写): 用于相关性排序(拼音首字母匹配)
         this.searchQuery = title == null ? "" : title.trim().toLowerCase();
@@ -824,6 +826,7 @@ public class SearchActivity extends BaseActivity {
 
         int count = allRunCount.decrementAndGet();
         if (count <= 0) {
+            FloatLogManager.getInstance().append("搜索:完成 " + searchAdapter.getData().size() + "条");
             if (searchAdapter.getData().isEmpty() && pendingResults.isEmpty()) {
                 showEmpty();
             }

@@ -50,12 +50,14 @@ import com.github.tvbox.osc.ui.adapter.SeriesAdapter;
 import com.github.tvbox.osc.ui.adapter.SeriesFlagAdapter;
 import com.github.tvbox.osc.ui.adapter.SeriesGroupAdapter;
 import com.github.tvbox.osc.ui.dialog.CacheAddedDialog;
+import com.github.tvbox.osc.ui.dialog.CacheDialog;
 import com.github.tvbox.osc.ui.dialog.DescDialog;
 import com.github.tvbox.osc.ui.dialog.PushDialog;
 import com.github.tvbox.osc.ui.dialog.QuickSearchDialog;
 import com.github.tvbox.osc.ui.fragment.PlayFragment;
 import com.github.tvbox.osc.util.DownloadManager;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
+import com.github.tvbox.osc.util.FloatLogManager;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.ImgUtil;
 import com.github.tvbox.osc.util.SearchHelper;
@@ -85,6 +87,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import java.util.concurrent.ExecutorService;
@@ -376,24 +379,29 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                // 取当前选中的集数地址 -> 加入缓存下载队列
-                String url = getCurrentPlayUrl();
-                String name = (vodInfo == null || vodInfo.name == null) ? "视频" : vodInfo.name;
-                if (url != null && !url.isEmpty()) {
-                    // 协议地址(如 noprotocol:)需播放器解析, 提示走播放自动缓存
-                    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                        Toast.makeText(DetailActivity.this, "该地址需播放器解析, 播放本集后会自动缓存", Toast.LENGTH_SHORT).show();
+                if (vodInfo == null || vodInfo.seriesMap == null || vodInfo.seriesMap.isEmpty()) {
+                    Toast.makeText(DetailActivity.this, "暂无可用剧集", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // 缓存 A 页: 缩略图+名称 / 画质 / 线路 / 集数, 点集数开始缓存, 弹窗不关闭
+                String picUrl = vodInfo != null ? vodInfo.pic : null;
+                new CacheDialog(DetailActivity.this, vodInfo, sourceKey, picUrl, (url, taskName, pic, bwPref) -> {
+                    if (url == null || url.isEmpty()) {
+                        Toast.makeText(DetailActivity.this, "该集无播放地址", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    boolean added = DownloadManager.getInstance().addTask(DetailActivity.this, name + " 第" + (getCurrentPlayIndex() + 1) + "集", url);
-                    if (added) {
-                        // 上下排版弹窗: 已添加缓存列表 + 跳转缓存页/知道了
-                        CacheAddedDialog dialog = new CacheAddedDialog(DetailActivity.this, "已添加缓存列表", () -> jumpActivity(CacheActivity.class));
-                        dialog.show();
+                    String lower = url.toLowerCase();
+                    boolean http = url.startsWith("http://") || url.startsWith("https://");
+                    // 直链媒体地址: 直接入队下载(带缩略图与画质偏好)
+                    if (http && (lower.contains(".mp4") || lower.contains(".mkv") || lower.contains(".avi")
+                            || lower.contains(".flv") || lower.contains(".ts") || lower.contains(".mov")
+                            || lower.contains(".webm") || lower.contains(".m3u8"))) {
+                        DownloadManager.getInstance().addTask(DetailActivity.this, taskName, url, null, false, pic, bwPref);
+                        return;
                     }
-                } else {
-                    Toast.makeText(DetailActivity.this, "当前集无播放地址, 请先选择集数", Toast.LENGTH_SHORT).show();
-                }
+                    // 协议地址/解析接口: 虚拟后台播放解析后再下载(不渲染画面)
+                    startVirtualParseDownload(url, taskName, pic);
+                }).show();
             }
         });
         tvCollect.setOnClickListener(new View.OnClickListener() {
@@ -601,6 +609,65 @@ public class DetailActivity extends BaseActivity {
     /**
      * 当前选中的播放地址(未解析, 直链可缓存)
      */
+    /**
+     * 虚拟后台播放缓存: 对协议地址/解析接口, 后台静默执行播放解析(不渲染画面)
+     * 拿到真实直链与鉴权参数后入队下载, 等效于\"虚拟播放\"
+     */
+    public void startVirtualParseDownload(String rawUrl, String taskName, String pic) {
+        Toast.makeText(DetailActivity.this, "正在后台解析缓存地址...", Toast.LENGTH_SHORT).show();
+        final String fPic = pic;
+        try {
+            SourceViewModel svm = new ViewModelProvider(this).get(SourceViewModel.class);
+            svm.playResult.observe(this, new Observer<JSONObject>() {
+                @Override
+                public void onChanged(JSONObject info) {
+                    if (info == null) {
+                        Toast.makeText(DetailActivity.this, "解析失败, 暂无法缓存", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    try {
+                        String url = info.optString("url", "");
+                        if (url.isEmpty()) {
+                            Toast.makeText(DetailActivity.this, "解析失败, 暂无法缓存", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        HashMap<String, String> headers = null;
+                        if (info.has("header")) {
+                            try {
+                                JSONObject hds = new JSONObject(info.getString("header"));
+                                Iterator<String> keys = hds.keys();
+                                while (keys.hasNext()) {
+                                    String key = keys.next();
+                                    if (headers == null) headers = new HashMap<>();
+                                    headers.put(key, hds.getString(key));
+                                }
+                            } catch (Throwable th) {
+                            }
+                        }
+                        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                            Toast.makeText(DetailActivity.this, "解析结果为协议地址, 暂不支持缓存", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        boolean added = DownloadManager.getInstance().addTask(DetailActivity.this, taskName, url, headers, false, fPic, 0);
+                        if (added) {
+                            CacheAddedDialog dialog = new CacheAddedDialog(DetailActivity.this, "已添加缓存列表", () -> jumpActivity(CacheActivity.class));
+                            dialog.show();
+                        }
+                    } catch (Throwable th) {
+                        th.printStackTrace();
+                        Toast.makeText(DetailActivity.this, "解析失败, 暂无法缓存", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            String proKey = sourceKey + vodInfo.id + vodInfo.playFlag + getCurrentPlayIndex();
+            String subtKey = sourceKey + "-" + vodInfo.id + "-" + vodInfo.playFlag + "-" + getCurrentPlayIndex() + "-subt";
+            svm.getPlay(sourceKey, vodInfo.playFlag, proKey, rawUrl, subtKey);
+        } catch (Throwable th) {
+            th.printStackTrace();
+            Toast.makeText(DetailActivity.this, "解析失败, 暂无法缓存", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private String getCurrentPlayUrl() {
         try {
             if (vodInfo == null || vodInfo.seriesMap == null) return null;
@@ -790,6 +857,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onChanged(AbsXml absXml) {
                 if (absXml != null && absXml.movie != null && absXml.movie.videoList != null && absXml.movie.videoList.size() > 0) {
+                    FloatLogManager.getInstance().append("详情:加载成功 " + vodId);
                     showSuccess();
                     if (!TextUtils.isEmpty(absXml.msg) && !absXml.msg.equals("数据列表")) {
                         Toast.makeText(DetailActivity.this, absXml.msg, Toast.LENGTH_SHORT).show();
@@ -884,6 +952,7 @@ public class DetailActivity extends BaseActivity {
                         mEmptyPlayList.setVisibility(View.VISIBLE);
                     }
                 } else {
+                    FloatLogManager.getInstance().append("详情:加载失败 " + vodId + " (无数据)");
                     showEmpty();
                     llPlayerFragmentContainer.setVisibility(View.GONE);
                     llPlayerFragmentContainerBlock.setVisibility(View.GONE);
@@ -915,6 +984,7 @@ public class DetailActivity extends BaseActivity {
             vodId = vid;
             sourceKey = key;
             firstsourceKey = key;
+            FloatLogManager.getInstance().append("加载:详情 " + vid);
             showLoading();
             sourceViewModel.getDetail(sourceKey, vodId);
 

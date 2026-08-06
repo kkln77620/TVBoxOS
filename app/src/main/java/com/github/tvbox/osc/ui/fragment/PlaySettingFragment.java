@@ -162,6 +162,7 @@ public class PlaySettingFragment extends BaseLazyFragment {
                 players.add(1);
                 players.add(2);
                 players.add(3);
+                players.add(4); // VLC 内置内核
                 if (MXPlayer.getPackageInfo() != null) {
                     players.add(10);
                 }

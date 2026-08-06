@@ -3,6 +3,7 @@ package com.github.tvbox.osc.ui.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.Settings;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -17,11 +18,13 @@ import com.github.tvbox.osc.base.BaseLazyFragment;
 import com.github.tvbox.osc.ui.activity.AboutDetailActivity;
 import com.github.tvbox.osc.ui.adapter.SelectDialogAdapter;
 import com.github.tvbox.osc.ui.dialog.BackupDialog;
+import com.github.tvbox.osc.ui.dialog.ContactAuthorDialog;
 import com.github.tvbox.osc.ui.dialog.ResetDialog;
 import com.github.tvbox.osc.ui.dialog.SelectDialog;
 import com.github.tvbox.osc.ui.dialog.WallpaperDialog;
 import com.github.tvbox.osc.ui.dialog.XWalkInitDialog;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
+import com.github.tvbox.osc.util.FloatLogManager;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
@@ -105,6 +108,10 @@ public class SystemSettingFragment extends BaseLazyFragment {
     protected void init() {
         tvFastSearchText = findViewById(R.id.showFastSearchText);
         tvFastSearchText.setText(Hawk.get(HawkConfig.FAST_SEARCH_MODE, false) ? "已开启" : "已关闭");
+        TextView tvFloatLogText = findViewById(R.id.tvFloatLogText);
+        tvFloatLogText.setText(FloatLogManager.getInstance().isShowing() ? "已开启" : "已关闭");
+        TextView tvAutoCacheText = findViewById(R.id.tvAutoCacheText);
+        tvAutoCacheText.setText(Hawk.get(HawkConfig.AUTO_CACHE, true) ? "已开启" : "已关闭");
         tvLocale = findViewById(R.id.tvLocale);
         tvLocale.setText(getLocaleView(Hawk.get(HawkConfig.HOME_LOCALE, 0)));
         tvTheme = findViewById(R.id.tvTheme);
@@ -422,6 +429,56 @@ public class SystemSettingFragment extends BaseLazyFragment {
                 FastClickCheckUtil.check(v);
                 Hawk.put(HawkConfig.FAST_SEARCH_MODE, !Hawk.get(HawkConfig.FAST_SEARCH_MODE, false));
                 tvFastSearchText.setText(Hawk.get(HawkConfig.FAST_SEARCH_MODE, false) ? "已开启" : "已关闭");
+            }
+        });
+        // 联系作者: 二级菜单显示QQ号, 点击复制
+        findViewById(R.id.llContactAuthor).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FastClickCheckUtil.check(v);
+                ContactAuthorDialog dialog = new ContactAuthorDialog(mActivity);
+                dialog.show();
+            }
+        });
+        // 悬浮日志: 观察所有Activity活动, 需要悬浮窗权限
+        // 播放自动缓存开关
+        findViewById(R.id.llAutoCache).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FastClickCheckUtil.check(v);
+                boolean now = Hawk.get(HawkConfig.AUTO_CACHE, true);
+                Hawk.put(HawkConfig.AUTO_CACHE, !now);
+                TextView tvAutoCacheText = findViewById(R.id.tvAutoCacheText);
+                tvAutoCacheText.setText(!now ? "已开启" : "已关闭");
+            }
+        });
+        findViewById(R.id.llFloatLog).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FastClickCheckUtil.check(v);
+                TextView tvFloatLogText = findViewById(R.id.tvFloatLogText);
+                if (FloatLogManager.getInstance().isShowing()) {
+                    FloatLogManager.getInstance().hide();
+                    tvFloatLogText.setText("已关闭");
+                    Toast.makeText(mContext, "悬浮日志已关闭", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // 悬浮窗权限检查
+                if (!Settings.canDrawOverlays(mContext)) {
+                    try {
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:" + mContext.getPackageName()));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intent);
+                        Toast.makeText(mContext, "请授予悬浮窗权限后再次开启", Toast.LENGTH_LONG).show();
+                    } catch (Throwable th) {
+                        Toast.makeText(mContext, "无法打开悬浮窗授权页", Toast.LENGTH_SHORT).show();
+                    }
+                    return;
+                }
+                FloatLogManager.getInstance().show(mActivity);
+                tvFloatLogText.setText("已开启");
+                Toast.makeText(mContext, "悬浮日志已开启", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -82,6 +82,7 @@ import com.github.tvbox.osc.util.AdBlocker;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.DownloadManager;
 import com.github.tvbox.osc.util.FileUtils;
+import com.github.tvbox.osc.util.FloatLogManager;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.HawkUtils;
 import com.github.tvbox.osc.util.LOG;
@@ -152,9 +153,14 @@ public class PlayActivity extends BaseActivity {
     private ProgressBar mPlayLoading;
     private VodController mController;
     private SourceViewModel sourceViewModel;
+    private HashMap<String, String> lastPlayHeaders; // 最近一次播放鉴权参数(自动缓存复用)
     private Handler mHandler;
 
     private String videoURL;
+    // 播放器自动切换: 播放失败时按兼容性队列轮换内核重试
+    private int[] switchQueue = null;
+    private int switchIndex = -1;
+    private String lastSwitchUrl = "";
     private long videoDuration = -1;
     private List<String> videoSegmentationURL = new ArrayList<>();
 
@@ -259,15 +265,18 @@ public class PlayActivity extends BaseActivity {
         ProgressManager progressManager = new ProgressManager() {
             @Override
             public void saveProgress(String url, long progress) {
-                if (videoDuration == 0) return;
-                CacheManager.save(MD5.string2MD5(url), progress);
+                if (url == null || videoDuration == 0) return;
+                try {
+                    CacheManager.save(MD5.string2MD5(url), progress);
+                } catch (Throwable ignored) {
+                }
             }
-
             @Override
             public long getSavedProgress(String url) {
+                if (url == null) return 0; // 本地文件直链模式无进度记录
                 int st = 0;
                 try {
-                    st = mVodPlayerCfg.getInt("st");
+                    if (mVodPlayerCfg != null) st = mVodPlayerCfg.getInt("st");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -292,6 +301,7 @@ public class PlayActivity extends BaseActivity {
 
             @Override
             public void playNext(boolean rmProgress) {
+                if (mVodInfo == null) return; // 直链模式(本地文件)无集数概念
                 if (videoSegmentationURL.size() > 0) {
                     for (int i = 0; i < videoSegmentationURL.size() - 1; i++) {
                         if (videoSegmentationURL.get(i).equals(videoURL)) {
@@ -313,6 +323,7 @@ public class PlayActivity extends BaseActivity {
 
             @Override
             public void playPre() {
+                if (mVodInfo == null) return; // 直链模式(本地文件)无集数概念
                 if (videoSegmentationURL.size() > 0) {
                     for (int i = 1; i < videoSegmentationURL.size(); i++) {
                         if (videoSegmentationURL.get(i).equals(videoURL)) {
@@ -337,6 +348,7 @@ public class PlayActivity extends BaseActivity {
 
             @Override
             public void updatePlayerCfg() {
+                if (mVodInfo == null) return; // 直链模式(本地文件)无配置
                 mVodInfo.playerCfg = mVodPlayerCfg.toString();
                 EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_REFRESH, mVodPlayerCfg));
             }
@@ -442,9 +454,9 @@ public class PlayActivity extends BaseActivity {
                         EventBus.getDefault().unregister(dialog);
                     }
                 });*/
-                if (mVodInfo.playFlag.contains("Ali") || mVodInfo.playFlag.contains("parse")) {
+                if (mVodInfo != null && (mVodInfo.playFlag.contains("Ali") || mVodInfo.playFlag.contains("parse"))) {
                     searchSubtitleDialog.setSearchWord(mVodInfo.playNote);
-                } else {
+                } else if (mVodInfo != null) {
                     searchSubtitleDialog.setSearchWord(mVodInfo.name);
                 }
                 searchSubtitleDialog.show();
@@ -657,6 +669,36 @@ public class PlayActivity extends BaseActivity {
     }
 
     void errorWithRetry(String err, boolean finish) {
+        FloatLogManager.getInstance().append("播放:失败 " + err);
+        // 播放器自动切换: 失败后换下一个内核重试(网络/本地文件均适用)
+        if (switchQueue == null) {
+            switchQueue = PlayerHelper.getSwitchQueue(Hawk.get(HawkConfig.PLAY_TYPE, 0));
+            switchIndex = -1;
+        }
+        if (switchIndex + 1 < switchQueue.length) {
+            switchIndex++;
+            int newType = switchQueue[switchIndex];
+            Hawk.put(HawkConfig.PLAY_TYPE, newType);
+            if (mVodPlayerCfg != null) {
+                try {
+                    mVodPlayerCfg.put("pl", newType);
+                } catch (Throwable ignored) {
+                }
+            }
+            FloatLogManager.getInstance().append("播放:自动切换播放器→" + PlayerHelper.getPlayerName(newType));
+            runOnUiThread(() -> {
+                try {
+                    if (mVodInfo != null) {
+                        play(false);
+                    } else if (videoURL != null) {
+                        startPlayUrl(videoURL, null);
+                    }
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                }
+            });
+            return;
+        }
         if (!autoRetry()) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -813,10 +855,62 @@ public class PlayActivity extends BaseActivity {
 
     void startPlayUrl(String url, HashMap<String, String> headers) {
         final String finalUrl = url;
-        // 自动缓存: 播放成功即后台全速下载本集(复用播放参数, 静默入队)
+        // 本地缓存文件播放(file://): 直接用内置播放器(ijk/exo均支持TS), 绕过网络解析
+        if (finalUrl != null && finalUrl.startsWith("file://")) {
+            runOnUiThread(() -> {
+                try {
+                    stopParse();
+                    if (mVideoView != null) mVideoView.release();
+                    videoURL = finalUrl;
+                    // 新播放(非自动切换重播)时重置切换队列
+                    if (switchQueue == null || !finalUrl.equals(lastSwitchUrl)) {
+                        switchQueue = PlayerHelper.getSwitchQueue(Hawk.get(HawkConfig.PLAY_TYPE, 0));
+                        switchIndex = -1;
+                        lastSwitchUrl = finalUrl;
+                    }
+                    // 本地文件: 强制 VLC 内核(对损坏TS容错最强), 失败自动切换IJK/Exo/系统
+                    int cur = 4;
+                    if (Hawk.get(HawkConfig.PLAY_TYPE, 0) != 4) {
+                        Hawk.put(HawkConfig.PLAY_TYPE, 4);
+                        FloatLogManager.getInstance().append("播放:本地文件改用VLC内核");
+                    }
+                    PlayerHelper.updateCfg(mVideoView, null, cur);
+                    mVideoView.setProgressKey(null);
+                    mVideoView.setUrl(finalUrl);
+                    mVideoView.start();
+                    if (mController != null) mController.resetSpeed();
+                    FloatLogManager.getInstance().append("播放:本地文件 " + finalUrl + " [" + PlayerHelper.getPlayerName(cur) + "]");
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                    setTip("本地文件播放失败", false, true);
+                    FloatLogManager.getInstance().append("播放:本地文件失败 " + th.getMessage());
+                }
+            });
+            return;
+        }
+        // 悬浮日志: 记录播放行为
         try {
-            if (finalUrl != null && !finalUrl.startsWith("http://127.0.0.1")
-                    && !finalUrl.startsWith("https://127.0.0.1")
+            String show = finalUrl == null ? "null" : (finalUrl.length() > 90 ? finalUrl.substring(0, 90) + "..." : finalUrl);
+            FloatLogManager.getInstance().append("播放:开始 " + show);
+        } catch (Throwable ignored) {
+        }
+        // 新URL播放: 重置播放器自动切换队列
+        if (finalUrl != null && !finalUrl.equals(lastSwitchUrl)) {
+            switchQueue = null;
+            switchIndex = -1;
+            lastSwitchUrl = finalUrl;
+        }
+        // 自动缓存: 播放成功即后台全速下载本集(复用播放参数, 静默入队)
+        // 支持净化代理 m3u8(http://127.0.0.1:port/m3u8, 内容为当前净化后清单, 分片为原始CDN地址)
+        try {
+            // 记录最近播放鉴权参数(切集等路径可能传空 headers, 下载复用上次参数)
+            if (headers != null && !headers.isEmpty()) lastPlayHeaders = headers;
+            HashMap<String, String> dlHeaders = (headers != null && !headers.isEmpty()) ? headers : lastPlayHeaders;
+            boolean isHttp = finalUrl != null && (finalUrl.startsWith("http://") || finalUrl.startsWith("https://"));
+            boolean isLocalM3u8 = isHttp && finalUrl.contains("://127.0.0.1") && finalUrl.contains("/m3u8");
+            // 自动缓存开关(设置-系统设置可关闭; 连播会逐集入队, 关闭后不再自动下载)
+            boolean autoCacheOn = Hawk.get(HawkConfig.AUTO_CACHE, true);
+            if (autoCacheOn && isHttp && (!finalUrl.contains("://127.0.0.1") || isLocalM3u8)
                     && mVodInfo != null && mVodInfo.name != null) {
                 String cacheName = mVodInfo.name;
                 try {
@@ -826,7 +920,12 @@ public class PlayActivity extends BaseActivity {
                     }
                 } catch (Throwable ignored) {
                 }
-                DownloadManager.getInstance().addTask(this, cacheName, finalUrl, headers, true);
+                String autoPic = null;
+                try {
+                    if (mVodInfo.pic != null) autoPic = mVodInfo.pic;
+                } catch (Throwable ignored) {
+                }
+                DownloadManager.getInstance().addTask(this, cacheName, finalUrl, dlHeaders, true, autoPic, 0);
             }
         } catch (Throwable ignored) {
         }
@@ -1088,6 +1187,13 @@ public class PlayActivity extends BaseActivity {
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
             Bundle bundle = intent.getExtras();
+            // 直链模式(缓存页本地文件播放): 直接播放, 不依赖视频信息
+            String directUrl = bundle.getString("url");
+            if (directUrl != null && !directUrl.isEmpty()) {
+                FloatLogManager.getInstance().append("播放:直链模式 " + directUrl);
+                startPlayUrl(directUrl, null);
+                return;
+            }
             mVodInfo = (VodInfo) bundle.getSerializable("VodInfo");
             sourceKey = bundle.getString("sourceKey");
             sourceBean = ApiConfig.get().getSource(sourceKey);

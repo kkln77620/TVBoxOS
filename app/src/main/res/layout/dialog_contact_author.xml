@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 联系作者对话框: 显示QQ号, 点击复制 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_dialog_bg_main"
+    android:orientation="vertical"
+    android:padding="@dimen/vs_30">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="联系作者"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_28"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvContactQq"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_30"
+        android:background="@drawable/input_dialog_api_input"
+        android:gravity="center"
+        android:padding="@dimen/vs_20"
+        android:text="QQ:3921435329"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/ts_26" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_10"
+        android:gravity="center"
+        android:text="点击复制QQ号"
+        android:textColor="@color/color_FFFFFF_50"
+        android:textSize="@dimen/ts_20" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/vs_30"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnContactCopy"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/vs_50"
+            android:layout_marginRight="@dimen/vs_5"
+            android:layout_weight="1"
+            android:background="@drawable/button_dialog_main"
+            android:gravity="center"
+            android:text="复制QQ号"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_22" />
+
+        <TextView
+            android:id="@+id/btnContactClose"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/vs_50"
+            android:layout_marginLeft="@dimen/vs_5"
+            android:layout_weight="1"
+            android:background="@drawable/button_dialog_main"
+            android:gravity="center"
+            android:text="关闭"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/ts_22" />
+    </LinearLayout>
+</LinearLayout>

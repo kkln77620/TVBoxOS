@@ -195,6 +195,8 @@ dependencies {
         exclude group: 'stax', module: 'stax-api'
         exclude group: 'xpp3', module: 'xpp3'
     }
+    // VLC 播放器内核 (高级播放器, 支持更多容器格式)
+    implementation 'org.videolan.android:libvlc-all:3.5.1'
     configurations {
         configureEach {
             exclude group: 'xpp3', module: 'xpp3'
