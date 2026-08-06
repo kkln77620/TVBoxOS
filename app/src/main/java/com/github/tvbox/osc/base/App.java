@@ -60,7 +60,6 @@ public class App extends MultiDexApplication {
         instance = this;
         handler = HandlerCompat.createAsync(Looper.getMainLooper());
     }
-
     /**
      * 启动自动检查更新(静默): 有新版弹窗, 无新版不打扰
      */
@@ -74,6 +73,22 @@ public class App extends MultiDexApplication {
         }
     }
 
+    /**
+     * 首次使用: 弹出使用手册(如何配置地址), 只弹一次
+     */
+    private void showManualIfFirst() {
+        try {
+            if (Hawk.get(HawkConfig.MANUAL_SHOWN, false)) return;
+            Activity top = AppManager.getInstance().currentActivity();
+            if (top == null) return;
+            Hawk.put(HawkConfig.MANUAL_SHOWN, true);
+            new com.github.tvbox.osc.ui.dialog.ManualDialog(top).show();
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
+    }
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -81,6 +96,8 @@ public class App extends MultiDexApplication {
         initParams();
         // takagen99 : Initialize Locale
         initLocale();
+        // 首次使用: 弹出使用手册(如何配置地址), 只弹一次
+        handler.postDelayed(this::showManualIfFirst, 1200);
         // 自动检查更新: 启动延迟2秒静默检测 GitHub Release, 有新版本弹窗提示
         handler.postDelayed(this::autoCheckUpdate, 2000);
         // OKGo

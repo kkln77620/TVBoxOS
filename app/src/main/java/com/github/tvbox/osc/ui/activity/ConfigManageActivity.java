@@ -38,6 +38,15 @@ public class ConfigManageActivity extends BaseActivity {
     private TvRecyclerView configList;
     private ConfigAdapter adapter;
 
+    /**
+     * 内置配置地址: 名称为 内置地址A/B/C
+     */
+    private static final String[][] BUILTIN_CONFIGS = {
+            {"内置地址A", "http://www.饭太硬.cc/tv"},
+            {"内置地址B", "http://xn--z7x900a.net/tv"},
+            {"内置地址C", "https://9877.kstore.space/one.json"}
+    };
+
     @Override
     protected int getLayoutResID() {
         return R.layout.activity_config_manage;
@@ -55,6 +64,44 @@ public class ConfigManageActivity extends BaseActivity {
                 showEditDialog(null);
             }
         });
+
+        // 使用内置配置地址: 检查已导入的地址, 缺哪个补哪个
+        findViewById(R.id.btnUseBuiltin).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                importBuiltinConfigs();
+            }
+        });
+    }
+
+    /**
+     * 导入内置配置: 已有则不重复导入, 缺几个补几个
+     */
+    private void importBuiltinConfigs() {
+        List<ConfigBean> list = ConfigManager.getConfigs();
+        int added = 0;
+        for (String[] bc : BUILTIN_CONFIGS) {
+            boolean exists = false;
+            for (ConfigBean c : list) {
+                if (c.apiUrl != null && c.apiUrl.trim().equalsIgnoreCase(bc[1].trim())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                list.add(new ConfigBean(bc[0], bc[1]));
+                added++;
+            }
+        }
+        if (added > 0) {
+            ConfigManager.saveConfigs(list);
+            Toast.makeText(this, "已导入 " + added + " 个内置配置地址", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "内置配置地址已全部存在", Toast.LENGTH_SHORT).show();
+        }
+        if (adapter != null) {
+            adapter.setNewData(ConfigManager.getConfigs());
+        }
     }
 
     @Override

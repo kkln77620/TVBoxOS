@@ -21,6 +21,8 @@ public class HawkConfig {
     public static final String WALLPAPER_SOUND = "wallpaper_sound";
     public static final String WALLPAPER_VOLUME = "wallpaper_volume";
     public static final String WALLPAPER_FIT = "wallpaper_fit";
+// 首次使用手册已展示
+public static final String MANUAL_SHOWN = "manual_shown";
     // 多配置地址管理
     public static final String MULTI_CONFIG_ENABLE = "multi_config_enable";
     public static final String LIVE_URL = "live_url";

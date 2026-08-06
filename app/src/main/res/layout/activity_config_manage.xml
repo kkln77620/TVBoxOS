@@ -33,6 +33,20 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/btnUseBuiltin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/vs_10"
+            android:layout_marginRight="@dimen/vs_10"
+            android:background="@drawable/button_dialog_vod"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/vs_12"
+            android:text="使用内置配置地址"
+            android:textColor="@color/color_FFB800"
+            android:textSize="@dimen/ts_20" />
+
+        <TextView
             android:id="@+id/btnAddConfig"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
