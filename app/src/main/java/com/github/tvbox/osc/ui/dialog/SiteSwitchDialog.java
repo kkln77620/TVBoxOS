@@ -52,9 +52,16 @@ public class SiteSwitchDialog extends BaseDialog {
         configBar = findViewById(R.id.configBar);
         siteList = findViewById(R.id.siteList);
 
-        // 按配置分组
+        // 按配置分组(仅显示已启用配置的子源)
+        List<String> enabledConfigs = new ArrayList<>();
+        for (com.github.tvbox.osc.bean.ConfigBean cb : com.github.tvbox.osc.util.ConfigManager.getEnabledConfigs()) {
+            enabledConfigs.add(cb.name);
+        }
         for (SourceBean sb : ApiConfig.get().getSourceBeanList()) {
             if (sb.getHide() != 0) continue;
+            // 关联启用: 所属配置被禁用则不显示
+            if (sb.getConfigName() != null && !sb.getConfigName().isEmpty()
+                    && !enabledConfigs.contains(sb.getConfigName())) continue;
             String cfgName = sb.getConfigName();
             if (cfgName == null || cfgName.isEmpty()) cfgName = "默认";
             List<SourceBean> list = groups.get(cfgName);
@@ -85,6 +92,7 @@ public class SiteSwitchDialog extends BaseDialog {
 
     private void buildConfigBar() {
         configBar.removeAllViews();
+        android.widget.HorizontalScrollView hsv = findViewById(R.id.configBarScroll);
         for (String cfgName : groups.keySet()) {
             TextView btn = new TextView(getContext());
             btn.setText(cfgName);
@@ -100,6 +108,12 @@ public class SiteSwitchDialog extends BaseDialog {
             btn.setFocusable(true);
             btn.setClickable(true);
             btn.setOnClickListener(v -> switchConfig(cfgName));
+            // 遥控器焦点移动时自动横向滚动, 源多时也能看到后面的配置
+            btn.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus && hsv != null) {
+                    hsv.smoothScrollTo(Math.max(0, v.getLeft() - dp(20)), 0);
+                }
+            });
             configButtons.put(cfgName, btn);
             configBar.addView(btn);
         }

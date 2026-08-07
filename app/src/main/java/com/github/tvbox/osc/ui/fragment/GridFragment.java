@@ -26,6 +26,7 @@ import com.github.tvbox.osc.event.RefreshEvent;
 import com.github.tvbox.osc.ui.activity.DetailActivity;
 import com.github.tvbox.osc.ui.activity.FastSearchActivity;
 import com.github.tvbox.osc.ui.activity.SearchActivity;
+import com.github.tvbox.osc.ui.activity.WebViewActivity;
 import com.github.tvbox.osc.ui.adapter.GridAdapter;
 import com.github.tvbox.osc.ui.adapter.GridFilterKVAdapter;
 import com.github.tvbox.osc.ui.dialog.GridFilterDialog;
@@ -249,6 +250,20 @@ public class GridFragment extends BaseLazyFragment {
                 FastClickCheckUtil.check(view);
                 Movie.Video video = gridAdapter.getData().get(position);
                 if (video != null) {
+                    // 外链检测: 源返回 http 链接(如哔哩账号登录/网盘授权页), 用 WebView 打开
+                    String vid = video.id;
+                    if (vid != null && (vid.startsWith("http://") || vid.startsWith("https://"))) {
+                        String lower = vid.toLowerCase();
+                        boolean isMedia = lower.contains(".mp4") || lower.contains(".mkv") || lower.contains(".m3u8")
+                                || lower.contains(".flv") || lower.contains(".ts") || lower.contains(".avi")
+                                || lower.contains(".mov") || lower.contains(".webm");
+                        if (!isMedia) {
+                            Bundle wb = new Bundle();
+                            wb.putString("url", vid);
+                            jumpActivity(WebViewActivity.class, wb);
+                            return;
+                        }
+                    }
                     Bundle bundle = new Bundle();
                     bundle.putString("id", video.id);
                     bundle.putString("sourceKey", video.sourceKey);

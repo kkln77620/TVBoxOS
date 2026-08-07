@@ -18,6 +18,7 @@
 
     <!-- 大配置横条(可滑动) -->
     <HorizontalScrollView
+        android:id="@+id/configBarScroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/vs_15"

@@ -90,7 +90,10 @@ public final class ExoMediaSourceHelper {
     }
 
     public MediaSource getMediaSource(String uri, Map<String, String> headers) {
-        return getMediaSource(uri, headers, false);
+        // 播放缓存: 网络流默认启用(边播边存, 二次秒开, LRU自动淘汰); 本地文件跳过
+        boolean useCache = uri != null && !uri.startsWith("file://")
+                && (uri.startsWith("http://") || uri.startsWith("https://"));
+        return getMediaSource(uri, headers, useCache);
     }
 
     public MediaSource getMediaSource(String uri, boolean isCache) {
@@ -129,7 +132,9 @@ public final class ExoMediaSourceHelper {
             case C.TYPE_DASH:
                 return new DashMediaSource.Factory(factory).createMediaSource(MediaItem.fromUri(contentUri));
             case C.TYPE_HLS:
-                return new HlsMediaSource.Factory(mHttpDataSourceFactory)
+                // HLS 也走缓存(移植 FongMi 方案): 分片边播边存, 重复播放秒开
+                DataSource.Factory hlsFactory = isCache ? factory : mHttpDataSourceFactory;
+                return new HlsMediaSource.Factory(hlsFactory)
                         .setAllowChunklessPreparation(true)
                         .setExtractorFactory(new MyHlsExtractorFactory())
                         .createMediaSource(MediaItem.fromUri(contentUri));
@@ -165,9 +170,17 @@ public final class ExoMediaSourceHelper {
 
     @SuppressLint("UnsafeOptInUsageError")
     private Cache newCache() {
+        File dir = new File(FileUtils.getExternalCachePath(), "exo-video-cache");//缓存目录
+        // 动态缓存空间(移植 FongMi 方案): 存储可用空间的80%, 最低256MB, 避免固定512MB浪费/不足
+        long available = 0;
+        try {
+            if (dir.exists() || dir.mkdirs()) available = dir.getUsableSpace();
+        } catch (Throwable ignored) {
+        }
+        long max = Math.max(256L * 1024 * 1024, available * 8 / 10);
         return new SimpleCache(
-                new File(FileUtils.getExternalCachePath(), "exo-video-cache"),//缓存目录
-                new LeastRecentlyUsedCacheEvictor(512 * 1024 * 1024),//缓存大小，默认512M，使用LRU算法实现
+                dir,
+                new LeastRecentlyUsedCacheEvictor(max),//LRU算法动态淘汰
                 new StandaloneDatabaseProvider(mAppContext));
     }
 

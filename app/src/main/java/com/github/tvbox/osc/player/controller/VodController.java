@@ -854,30 +854,13 @@ public class VodController extends BaseController {
                 return true;
             }
         });
-        // Button : SKIP time start -----------------------------------------
+// Button : SKIP time start -----------------------------------------
         mPlayerTimeStartBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 mHandler.removeCallbacks(mHideBottomRunnable);
                 mHandler.postDelayed(mHideBottomRunnable, 8000);
-                try {
-//                    int step = Hawk.get(HawkConfig.PLAY_TIME_STEP, 5);
-//                    int st = mPlayerConfig.getInt("st");
-//                    st += step;
-//                    if (st > 60 * 10)
-//                        st = 0;          600 = 10 mins
-
-                    // takagen99: Reference FongMi to get exact opening skip time
-                    int current = (int) mControlWrapper.getCurrentPosition();
-                    int duration = (int) mControlWrapper.getDuration();
-                    if (current > duration / 2) return;
-                    mPlayerConfig.put("st", current / 1000);
-
-                    updatePlayerCfgView();
-                    listener.updatePlayerCfg();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                showSkipTimeDialog("跳过开头", "st");
             }
         });
         // takagen99: Add long press to reset counter
@@ -888,6 +871,7 @@ public class VodController extends BaseController {
                     mPlayerConfig.put("st", 0);
                     updatePlayerCfgView();
                     listener.updatePlayerCfg();
+                    Toast.makeText(getContext(), "已清除跳过开头", Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -900,24 +884,7 @@ public class VodController extends BaseController {
             public void onClick(View view) {
                 mHandler.removeCallbacks(mHideBottomRunnable);
                 mHandler.postDelayed(mHideBottomRunnable, 8000);
-                try {
-//                    int step = Hawk.get(HawkConfig.PLAY_TIME_STEP, 5);
-//                    int et = mPlayerConfig.getInt("et");
-//                    et += step;
-//                    if (et > 60 * 10)
-//                        et = 0;
-
-                    // takagen99: Reference FongMi to get exact ending skip time
-                    int current = (int) mControlWrapper.getCurrentPosition();
-                    int duration = (int) mControlWrapper.getDuration();
-                    if (current < duration / 2) return;
-                    mPlayerConfig.put("et", (duration - current) / 1000);
-
-                    updatePlayerCfgView();
-                    listener.updatePlayerCfg();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                showSkipTimeDialog("跳过结尾", "et");
             }
         });
         // takagen99: Add long press to reset counter
@@ -928,6 +895,7 @@ public class VodController extends BaseController {
                     mPlayerConfig.put("et", 0);
                     updatePlayerCfgView();
                     listener.updatePlayerCfg();
+                    Toast.makeText(getContext(), "已清除跳过结尾", Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -1081,8 +1049,8 @@ public class VodController extends BaseController {
             mPlayerIJKBtn.setText(mPlayerConfig.getString("ijk"));
             mPlayerIJKBtn.setVisibility(playerType == 1 ? VISIBLE : GONE);
             mFFwdTxt.setText("x" + mPlayerConfig.getDouble("sp"));
-            mPlayerTimeStartBtn.setText(PlayerUtils.stringForTime(mPlayerConfig.getInt("st") * 1000));
-            mPlayerTimeSkipBtn.setText(PlayerUtils.stringForTime(mPlayerConfig.getInt("et") * 1000));
+            mPlayerTimeStartBtn.setText(PlayerUtils.formatSkipTime(mPlayerConfig.getInt("st")));
+            mPlayerTimeSkipBtn.setText(PlayerUtils.formatSkipTime(mPlayerConfig.getInt("et")));
             mPlayerTimeStepBtn.setText(Hawk.get(HawkConfig.PLAY_TIME_STEP, 5) + "s");
 //            mSubtitleBtn.setVisibility(playerType == 1 ? VISIBLE : GONE);
 //            mAudioTrackBtn.setVisibility(playerType == 1 ? VISIBLE : GONE);
@@ -1099,6 +1067,73 @@ public class VodController extends BaseController {
         skipEnd = true;
         mHandler.removeMessages(1004);
         mHandler.sendEmptyMessageDelayed(1004, 100);
+    }
+
+    /**
+     * 跳过开头/结尾设置二级菜单: 输入秒数 / 快捷秒数 / 使用当前位置 / 清零
+     */
+    private void showSkipTimeDialog(String title, final String key) {
+        try {
+            int current = (int) mControlWrapper.getCurrentPosition();
+            int duration = (int) mControlWrapper.getDuration();
+            int curVal = 0;
+            try {
+                curVal = mPlayerConfig.getInt(key);
+            } catch (Throwable ignored) {
+            }
+            final android.widget.EditText et = new android.widget.EditText(getContext());
+            et.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+            et.setText(String.valueOf(curVal));
+            et.setHint("秒数(0=关闭)");
+            et.setSelectAllOnFocus(true);
+            new android.app.AlertDialog.Builder(getContext())
+                    .setTitle(title + " (当前" + curVal + "秒)")
+                    .setMessage("设置后播放到该位置自动" + ("st".equals(key) ? "跳过片头" : "跳过片尾"))
+                    .setView(et)
+                    .setPositiveButton("确定", (d, w) -> {
+                        try {
+                            int sec = Integer.parseInt(et.getText().toString().trim());
+                            mPlayerConfig.put(key, Math.max(0, sec));
+                            updatePlayerCfgView();
+                            listener.updatePlayerCfg();
+                            Toast.makeText(getContext(), title + "已设为" + sec + "秒", Toast.LENGTH_SHORT).show();
+                        } catch (Throwable th) {
+                            Toast.makeText(getContext(), "请输入有效秒数", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNeutralButton("用当前位置", (d, w) -> {
+                        try {
+                            if ("st".equals(key) && duration > 0 && current > duration / 2) {
+                                Toast.makeText(getContext(), "当前已过半, 请在前半段设置", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if ("et".equals(key) && duration > 0 && current < duration / 2) {
+                                Toast.makeText(getContext(), "当前未过半, 请在后半段设置", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            int sec = Math.max(0, current / 1000);
+                            mPlayerConfig.put(key, sec);
+                            updatePlayerCfgView();
+                            listener.updatePlayerCfg();
+                            Toast.makeText(getContext(), title + "已设为当前位置" + sec + "秒", Toast.LENGTH_SHORT).show();
+                        } catch (Throwable th) {
+                            th.printStackTrace();
+                        }
+                    })
+                    .setNegativeButton("清零", (d, w) -> {
+                        try {
+                            mPlayerConfig.put(key, 0);
+                            updatePlayerCfgView();
+                            listener.updatePlayerCfg();
+                            Toast.makeText(getContext(), title + "已清除", Toast.LENGTH_SHORT).show();
+                        } catch (Throwable th) {
+                            th.printStackTrace();
+                        }
+                    })
+                    .show();
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
     }
 
     public interface VodControlListener {

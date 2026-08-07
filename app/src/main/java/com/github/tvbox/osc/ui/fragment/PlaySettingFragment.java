@@ -84,6 +84,43 @@ public class PlaySettingFragment extends BaseLazyFragment {
             FastClickCheckUtil.check(v);
             Toast.makeText(mContext, "播放自动缓存暂未开放, 敬请期待", Toast.LENGTH_SHORT).show();
         });
+        // 搜索显示数量: 每源最多显示条数(优化低性能设备)
+        TextView tvSearchCount = findViewById(R.id.tvSearchCount);
+        tvSearchCount.setText(Hawk.get(HawkConfig.SEARCH_PAGE_SIZE, 30) + " 条/源");
+        findViewById(R.id.llSearchCount).setOnClickListener(v -> {
+            FastClickCheckUtil.check(v);
+            int cur = Hawk.get(HawkConfig.SEARCH_PAGE_SIZE, 30);
+            ArrayList<Integer> counts = new ArrayList<>();
+            counts.add(10);
+            counts.add(30);
+            counts.add(50);
+            counts.add(100);
+            counts.add(200);
+            SelectDialog<Integer> dialog = new SelectDialog<>(mActivity);
+            dialog.setTip("搜索显示数量(每源)");
+            dialog.setAdapter(null, new SelectDialogAdapter.SelectDialogInterface<Integer>() {
+                @Override
+                public void click(Integer value, int pos) {
+                    Hawk.put(HawkConfig.SEARCH_PAGE_SIZE, value);
+                    tvSearchCount.setText(value + " 条/源");
+                    Toast.makeText(mContext, "搜索每源最多显示 " + value + " 条", Toast.LENGTH_SHORT).show();
+                }
+                @Override
+                public String getDisplay(Integer val) {
+                    return val + " 条/源";
+                }
+            }, new DiffUtil.ItemCallback<Integer>() {
+                @Override
+                public boolean areItemsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    return oldItem.intValue() == newItem.intValue();
+                }
+                @Override
+                public boolean areContentsTheSame(@NonNull @NotNull Integer oldItem, @NonNull @NotNull Integer newItem) {
+                    return oldItem.intValue() == newItem.intValue();
+                }
+            }, counts, counts.indexOf(cur) < 0 ? 1 : counts.indexOf(cur));
+            dialog.show();
+        });
         // 弹幕地址
         TextView tvDanmuUrl = findViewById(R.id.tvDanmuUrl);
         tvDanmuUrl.setText(TextUtils.isEmpty(HawkUtils.getDanmuUrl()) ? "未设置" : HawkUtils.getDanmuUrl());

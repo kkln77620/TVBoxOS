@@ -37,6 +37,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.App;
@@ -122,6 +124,8 @@ public class HomeActivity extends BaseActivity {
     private TextView tvNavCache;
     private TextView tvNavSetting;
     private TvRecyclerView mGridView;
+    private TvRecyclerView mGridViewSource;
+    private BaseQuickAdapter<SourceBean, BaseViewHolder> sourceAdapter;
     private NoScrollViewPager mViewPager;
     private SourceViewModel sourceViewModel;
     private SortAdapter sortAdapter;
@@ -186,6 +190,53 @@ public class HomeActivity extends BaseActivity {
         this.contentLayout = findViewById(R.id.contentLayout);
         this.mGridView = findViewById(R.id.mGridViewCategory);
         this.mViewPager = findViewById(R.id.mViewPager);
+        // 源切换标签行: 多个启用源时显示, 点击随时切换当前源(仅启用配置下的源)
+        this.mGridViewSource = findViewById(R.id.mGridViewSource);
+        List<String> enabledCfgNames = new ArrayList<>();
+        for (com.github.tvbox.osc.bean.ConfigBean cb : com.github.tvbox.osc.util.ConfigManager.getEnabledConfigs()) {
+            enabledCfgNames.add(cb.name);
+        }
+        List<SourceBean> enabledSites = new ArrayList<>();
+        for (SourceBean sb : ApiConfig.get().getSourceBeanList()) {
+            if (sb.getHide() != 0) continue;
+            if (sb.getConfigName() != null && !sb.getConfigName().isEmpty()
+                    && !enabledCfgNames.contains(sb.getConfigName())) continue;
+            enabledSites.add(sb);
+        }
+        if (enabledSites.size() > 1) {
+            mGridViewSource.setVisibility(View.VISIBLE);
+            mGridViewSource.setLayoutManager(new V7LinearLayoutManager(this.mContext, 0, false));
+            mGridViewSource.setSpacingWithMargins(0, AutoSizeUtils.dp2px(this.mContext, 10.0f));
+            mGridViewSource.setAdapter(sourceAdapter = new BaseQuickAdapter<SourceBean, BaseViewHolder>(R.layout.item_source_tag, enabledSites) {
+                @Override
+                protected void convert(BaseViewHolder helper, SourceBean item) {
+                    boolean isHome = item.getKey() != null && item.getKey().equals(ApiConfig.get().getHomeSourceBean().getKey());
+                    TextView tv = helper.getView(R.id.item_source_tag);
+                    tv.setText(item.getName());
+                    tv.setTextColor(getResources().getColor(isHome ? R.color.color_FFB800 : R.color.color_FFFFFF));
+                }
+            });
+            mGridViewSource.setOnItemListener(new TvRecyclerView.OnItemListener() {
+                @Override
+                public void onItemPreSelected(TvRecyclerView parent, View itemView, int position) {
+                }
+                @Override
+                public void onItemSelected(TvRecyclerView parent, View itemView, int position) {
+                    itemView.setScaleX(1.03f);
+                    itemView.setScaleY(1.03f);
+                }
+                @Override
+                public void onItemClick(TvRecyclerView parent, View itemView, int position) {
+                    SourceBean sb = enabledSites.get(position);
+                    if (sb.getKey() != null && sb.getKey().equals(ApiConfig.get().getHomeSourceBean().getKey())) {
+                        Toast.makeText(HomeActivity.this, "当前已是: " + sb.getName(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    ApiConfig.get().setSourceBean(sb);
+                    reloadHome();
+                }
+            });
+        }
         initNavBar();
         this.sortAdapter = new SortAdapter();
         this.mGridView.setLayoutManager(new V7LinearLayoutManager(this.mContext, 0, false));
@@ -244,7 +295,16 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void onItemClick(TvRecyclerView parent, View itemView, int position) {
-                if (itemView != null && currentSelected == position) {
+                if (itemView != null) {
+                    if (currentSelected != position) {
+                        // 触屏点击其他分类: 先切换选中再加载(遥控器选中即切换, 触屏需手动)
+                        mGridView.setSelection(position);
+                        HomeActivity.this.sortChange = true;
+                        HomeActivity.this.sortFocused = position;
+                        mHandler.removeCallbacks(mDataRunnable);
+                        mHandler.postDelayed(mDataRunnable, 100);
+                        return;
+                    }
                     BaseLazyFragment baseLazyFragment = fragments.get(currentSelected);
                     if ((baseLazyFragment instanceof GridFragment) && !sortAdapter.getItem(position).filters.isEmpty()) {// 弹出筛选
                         ((GridFragment) baseLazyFragment).showFilter();

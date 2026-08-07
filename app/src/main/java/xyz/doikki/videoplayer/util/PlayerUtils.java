@@ -262,6 +262,21 @@ public final class PlayerUtils {
     /**
      * 格式化时间
      */
+    /**
+     * 跳过时间显示: 秒数 -> x时y分z秒 (如 1时30分0秒, 45秒, 2分5秒)
+     */
+    public static String formatSkipTime(int seconds) {
+        if (seconds <= 0) return "0秒";
+        int h = seconds / 3600;
+        int m = (seconds % 3600) / 60;
+        int s = seconds % 60;
+        StringBuilder sb = new StringBuilder();
+        if (h > 0) sb.append(h).append("时");
+        if (m > 0) sb.append(m).append("分");
+        if (s > 0 || sb.length() == 0) sb.append(s).append("秒");
+        return sb.toString();
+    }
+
     public static String stringForTime(int timeMs) {
         int totalSeconds = timeMs / 1000;
 

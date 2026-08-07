@@ -26,6 +26,8 @@ import com.github.tvbox.osc.ui.adapter.FastListAdapter;
 import com.github.tvbox.osc.ui.adapter.FastSearchAdapter;
 import com.github.tvbox.osc.ui.adapter.SearchWordAdapter;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
+import com.github.tvbox.osc.util.HawkConfig;
+import com.orhanobut.hawk.Hawk;
 import com.github.tvbox.osc.util.SearchHelper;
 import com.github.tvbox.osc.viewmodel.SourceViewModel;
 import com.google.gson.Gson;
@@ -471,11 +473,15 @@ public class FastSearchActivity extends BaseActivity {
 
     private void searchData(AbsXml absXml) {
         String lastSourceKey = "";
-
         if (absXml != null && absXml.movie != null && absXml.movie.videoList != null && absXml.movie.videoList.size() > 0) {
             List<Movie.Video> data = new ArrayList<>();
+            // 每源最多显示条数(优化低性能设备卡顿, 播放设置可调)
+            int pageSize = Hawk.get(HawkConfig.SEARCH_PAGE_SIZE, 30);
+            int added = 0;
             for (Movie.Video video : absXml.movie.videoList) {
+                if (added >= pageSize) break;
                 data.add(video);
+                added++;
                 if (!resultVods.containsKey(video.sourceKey)) {
                     resultVods.put(video.sourceKey, new ArrayList<Movie.Video>());
                 }

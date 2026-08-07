@@ -73,6 +73,9 @@
             android:name=".ui.activity.HistoryActivity"
             android:screenOrientation="sensorLandscape" />
         <activity
+            android:name=".ui.activity.WebViewActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|keyboardHidden" />
+        <activity
             android:name=".ui.activity.LivePlayActivity"
             android:screenOrientation="sensorLandscape"
             android:supportsPictureInPicture="true"

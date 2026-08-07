@@ -46,6 +46,7 @@ public static final String MANUAL_SHOWN = "manual_shown";
     public static final String SHOW_PREVIEW = "show_preview";
     public static final String AUTO_CACHE = "auto_cache"; // 播放自动缓存开关(暂禁用, 默认关闭)
     public static final String CACHE_ENABLE = "cache_enable"; // 缓存功能总开关(默认关闭, 开启需警告确认)
+    public static final String SEARCH_PAGE_SIZE = "search_page_size"; // 搜索每源显示条数(默认30, 低性能设备友好)
     public static final String CRASH_LOG_ENABLE = "crash_log_enable"; // 崩溃日志开关(默认开启)
     public static final String IJK_CODEC = "ijk_codec";
     public static final String PLAY_TYPE = "play_type";     //0 系统 1 ijk 2 exo 10 MXPlayer

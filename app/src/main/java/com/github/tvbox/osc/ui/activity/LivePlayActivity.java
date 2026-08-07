@@ -1146,6 +1146,7 @@ public class LivePlayActivity extends BaseActivity {
                     case VideoView.STATE_BUFFERED:
                     case VideoView.STATE_PLAYING:
                         currentLiveChangeSourceTimes = 0;
+                        liveLoadingTipShown = false;
                         mHandler.removeCallbacks(mConnectTimeoutChangeSourceRun);
                         mHandler.removeCallbacks(mConnectTimeoutReplayRun);
                         break;
@@ -1164,6 +1165,11 @@ public class LivePlayActivity extends BaseActivity {
                     case VideoView.STATE_BUFFERING:
                         mHandler.removeCallbacks(mConnectTimeoutChangeSourceRun);
                         mHandler.removeCallbacks(mConnectTimeoutReplayRun);
+                        // 加载提示(一次性, 避免刷屏): 告知用户只是直播源在加载, 软件未卡死
+                        if (!liveLoadingTipShown) {
+                            liveLoadingTipShown = true;
+                            Toast.makeText(mContext, "直播源加载中…若长时间无画面将自动切换线路", Toast.LENGTH_LONG).show();
+                        }
                         if (Hawk.get(HawkConfig.LIVE_CONNECT_TIMEOUT, 2) == 0) {
                             //缓冲30s重新播放
                             mHandler.postDelayed(mConnectTimeoutReplayRun, 30 * 1000L);
@@ -1194,6 +1200,7 @@ public class LivePlayActivity extends BaseActivity {
         @Override
         public void run() {
             currentLiveChangeSourceTimes++;
+            Toast.makeText(mContext, "直播源加载超时, 正在自动切换线路…", Toast.LENGTH_SHORT).show();
             if (currentLiveChannelItem.getSourceNum() == currentLiveChangeSourceTimes) {
                 currentLiveChangeSourceTimes = 0;
                 Integer[] groupChannelIndex = getNextChannel(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false) ? -1 : 1);
@@ -1203,6 +1210,8 @@ public class LivePlayActivity extends BaseActivity {
             }
         }
     };
+
+    private boolean liveLoadingTipShown = false;
 
     private final Runnable mConnectTimeoutReplayRun = new Runnable() {
         @Override

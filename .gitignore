@@ -101,3 +101,4 @@ lint/tmp/
 output-metadata.json
 .backup/
 xwalk/*.zip
+_sources/
