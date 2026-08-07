@@ -94,6 +94,11 @@ public class App extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        // 崩溃日志: 全局捕获崩溃堆栈写入 /sdcard/Download/tvbox_crash/
+        try {
+            com.github.tvbox.osc.util.CrashHandler.getInstance().init();
+        } catch (Throwable ignored) {
+        }
         SubtitleHelper.initSubtitleColor(this);
         initParams();
         // 悬浮日志: 全局观察所有 Activity 活动(设置页可开关)

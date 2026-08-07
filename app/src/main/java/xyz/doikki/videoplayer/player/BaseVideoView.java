@@ -575,9 +575,10 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
      */
     @Override
     public void onError(int code, String msg) {
+        mLastErrorCode = code;
+        mLastErrorMsg = msg;
         mPlayerContainer.setKeepScreenOn(false);
         setPlayState(STATE_ERROR);
-
         if (mHandler != null) {
             Message sendmsg = Message.obtain();
             sendmsg.what = 300;
@@ -585,6 +586,10 @@ public class BaseVideoView<P extends AbstractPlayer> extends FrameLayout
             mHandler.sendMessage(sendmsg);
         }
     }
+
+    /** 最近一次播放错误信息(供上层记录定位) */
+    public int mLastErrorCode = 0;
+    public String mLastErrorMsg = "";
 
     /**
      * 视频播放完成回调

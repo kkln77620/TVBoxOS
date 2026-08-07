@@ -38,17 +38,20 @@ public class VlcPlayer extends AbstractPlayer {
     @Override
     public void initPlayer() {
         ArrayList<String> options = new ArrayList<>();
-        options.add("--no-audio-time-stretch");
-        options.add("--avcodec-skip-frame=0");
-        options.add("--avcodec-skip-idct=0");
-        options.add("--avcodec-skip-loop-filter=0");
-        options.add("--android-display-chroma=RV32");
+        // 注意: 只能使用 libVLC 支持的选项, ffmpeg风格选项(--avcodec-*)会导致 LibVLC 初始化失败
         options.add("--file-caching=3000");
         options.add("--network-caching=6000");
         options.add("--live-caching=3000");
-        mLibVLC = new LibVLC(mContext, options);
-        mMediaPlayer = new MediaPlayer(mLibVLC);
-        setupListeners();
+        try {
+            mLibVLC = new LibVLC(mContext, options);
+            mMediaPlayer = new MediaPlayer(mLibVLC);
+            setupListeners();
+        } catch (Throwable th) {
+            th.printStackTrace();
+            if (mPlayerEventListener != null) {
+                mPlayerEventListener.onError(-1, "VLC 初始化失败: " + th.getMessage());
+            }
+        }
     }
 
     private void setupListeners() {
@@ -123,7 +126,7 @@ public class VlcPlayer extends AbstractPlayer {
             }
         }
         mMediaPlayer.setMedia(mMedia);
-        mMedia.release();
+        // 注意: 不立即 release() Media, 等待 reset/release 时统一释放, 避免部分设备播放异常
     }
 
     @Override
@@ -202,6 +205,13 @@ public class VlcPlayer extends AbstractPlayer {
             mMediaPlayer.getVLCVout().detachViews();
             mMediaPlayer.release();
             mMediaPlayer = null;
+        }
+        if (mMedia != null) {
+            try {
+                mMedia.release();
+            } catch (Throwable ignored) {
+            }
+            mMedia = null;
         }
         if (mLibVLC != null) {
             mLibVLC.release();

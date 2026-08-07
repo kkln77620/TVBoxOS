@@ -395,7 +395,11 @@ public class HomeActivity extends BaseActivity {
             return;
         }
         if (index == 6) {
-            // 缓存管理: 离线下载任务列表
+            // 缓存管理: 离线下载任务列表 (受播放设置-缓存启用总开关控制)
+            if (!Hawk.get(HawkConfig.CACHE_ENABLE, false)) {
+                Toast.makeText(HomeActivity.this, "缓存功能未开启, 请在 设置→播放设置→缓存启用 中开启", Toast.LENGTH_LONG).show();
+                return;
+            }
             jumpActivity(CacheActivity.class);
             return;
         }

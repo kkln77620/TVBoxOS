@@ -23,6 +23,7 @@ import com.github.tvbox.osc.ui.dialog.ResetDialog;
 import com.github.tvbox.osc.ui.dialog.SelectDialog;
 import com.github.tvbox.osc.ui.dialog.WallpaperDialog;
 import com.github.tvbox.osc.ui.dialog.XWalkInitDialog;
+import com.github.tvbox.osc.util.CrashHandler;
 import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.FloatLogManager;
 import com.github.tvbox.osc.util.HawkConfig;
@@ -110,8 +111,10 @@ public class SystemSettingFragment extends BaseLazyFragment {
         tvFastSearchText.setText(Hawk.get(HawkConfig.FAST_SEARCH_MODE, false) ? "已开启" : "已关闭");
         TextView tvFloatLogText = findViewById(R.id.tvFloatLogText);
         tvFloatLogText.setText(FloatLogManager.getInstance().isShowing() ? "已开启" : "已关闭");
-        TextView tvAutoCacheText = findViewById(R.id.tvAutoCacheText);
-        tvAutoCacheText.setText(Hawk.get(HawkConfig.AUTO_CACHE, true) ? "已开启" : "已关闭");
+        TextView tvCrashLogText = findViewById(R.id.tvCrashLogText);
+        boolean crashOn = Hawk.get(HawkConfig.CRASH_LOG_ENABLE, true);
+        tvCrashLogText.setText(crashOn ? "已开启" : "已关闭");
+        CrashHandler.getInstance().setEnabled(crashOn);
         tvLocale = findViewById(R.id.tvLocale);
         tvLocale.setText(getLocaleView(Hawk.get(HawkConfig.HOME_LOCALE, 0)));
         tvTheme = findViewById(R.id.tvTheme);
@@ -441,15 +444,16 @@ public class SystemSettingFragment extends BaseLazyFragment {
             }
         });
         // 悬浮日志: 观察所有Activity活动, 需要悬浮窗权限
-        // 播放自动缓存开关
-        findViewById(R.id.llAutoCache).setOnClickListener(new View.OnClickListener() {
+        // 崩溃日志开关
+        findViewById(R.id.llCrashLog).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                boolean now = Hawk.get(HawkConfig.AUTO_CACHE, true);
-                Hawk.put(HawkConfig.AUTO_CACHE, !now);
-                TextView tvAutoCacheText = findViewById(R.id.tvAutoCacheText);
-                tvAutoCacheText.setText(!now ? "已开启" : "已关闭");
+                boolean now = Hawk.get(HawkConfig.CRASH_LOG_ENABLE, true);
+                Hawk.put(HawkConfig.CRASH_LOG_ENABLE, !now);
+                CrashHandler.getInstance().setEnabled(!now);
+                TextView tvCrashLogText = findViewById(R.id.tvCrashLogText);
+                tvCrashLogText.setText(!now ? "已开启" : "已关闭");
             }
         });
         findViewById(R.id.llFloatLog).setOnClickListener(new View.OnClickListener() {

@@ -379,29 +379,41 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
+                // 缓存总开关(播放设置-缓存启用): 关闭时提示
+                if (!Hawk.get(HawkConfig.CACHE_ENABLE, false)) {
+                    Toast.makeText(DetailActivity.this, "缓存功能未开启, 请在 设置→播放设置→缓存启用 中开启", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if (vodInfo == null || vodInfo.seriesMap == null || vodInfo.seriesMap.isEmpty()) {
                     Toast.makeText(DetailActivity.this, "暂无可用剧集", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 // 缓存 A 页: 缩略图+名称 / 画质 / 线路 / 集数, 点集数开始缓存, 弹窗不关闭
-                String picUrl = vodInfo != null ? vodInfo.pic : null;
-                new CacheDialog(DetailActivity.this, vodInfo, sourceKey, picUrl, (url, taskName, pic, bwPref) -> {
-                    if (url == null || url.isEmpty()) {
-                        Toast.makeText(DetailActivity.this, "该集无播放地址", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    String lower = url.toLowerCase();
-                    boolean http = url.startsWith("http://") || url.startsWith("https://");
-                    // 直链媒体地址: 直接入队下载(带缩略图与画质偏好)
-                    if (http && (lower.contains(".mp4") || lower.contains(".mkv") || lower.contains(".avi")
-                            || lower.contains(".flv") || lower.contains(".ts") || lower.contains(".mov")
-                            || lower.contains(".webm") || lower.contains(".m3u8"))) {
-                        DownloadManager.getInstance().addTask(DetailActivity.this, taskName, url, null, false, pic, bwPref);
-                        return;
-                    }
-                    // 协议地址/解析接口: 虚拟后台播放解析后再下载(不渲染画面)
-                    startVirtualParseDownload(url, taskName, pic);
-                }).show();
+                try {
+                    String picUrl = vodInfo != null ? vodInfo.pic : null;
+                    FloatLogManager.getInstance().append("缓存:打开选择弹窗 " + (vodInfo != null ? vodInfo.name : ""));
+                    new CacheDialog(DetailActivity.this, vodInfo, sourceKey, picUrl, (url, taskName, pic, bwPref) -> {
+                        if (url == null || url.isEmpty()) {
+                            Toast.makeText(DetailActivity.this, "该集无播放地址", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        String lower = url.toLowerCase();
+                        boolean http = url.startsWith("http://") || url.startsWith("https://");
+                        // 直链媒体地址: 直接入队下载(带缩略图与画质偏好)
+                        if (http && (lower.contains(".mp4") || lower.contains(".mkv") || lower.contains(".avi")
+                                || lower.contains(".flv") || lower.contains(".ts") || lower.contains(".mov")
+                                || lower.contains(".webm") || lower.contains(".m3u8"))) {
+                            DownloadManager.getInstance().addTask(DetailActivity.this, taskName, url, null, false, pic, bwPref);
+                            return;
+                        }
+                        // 协议地址/解析接口: 虚拟后台播放解析后再下载(不渲染画面)
+                        startVirtualParseDownload(url, taskName, pic);
+                    }).show();
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                    FloatLogManager.getInstance().append("缓存:弹窗打开失败 " + th.getMessage());
+                    Toast.makeText(DetailActivity.this, "缓存弹窗打开失败: " + th.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
         tvCollect.setOnClickListener(new View.OnClickListener() {

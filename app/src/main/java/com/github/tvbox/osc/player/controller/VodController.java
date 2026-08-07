@@ -1047,13 +1047,25 @@ public class VodController extends BaseController {
         mParseRoot.setVisibility(userJxList ? VISIBLE : GONE);
     }
 
-    private JSONObject mPlayerConfig = null;
-
+    private JSONObject mPlayerConfig = new JSONObject(); // 默认空配置: 任何路径(含直链模式未调用setPlayerConfig)都不会NPE
     private boolean mxPlayerExist = false;
     private boolean reexPlayerExist = false;
     private boolean KodiExist = false;
 
     public void setPlayerConfig(JSONObject playerCfg) {
+        if (playerCfg == null) {
+            playerCfg = new JSONObject(); // 直链模式等未初始化配置时兜底, 防止 NPE
+            try {
+                playerCfg.put("pl", Hawk.get(HawkConfig.PLAY_TYPE, 1));
+                playerCfg.put("pr", 0);
+                playerCfg.put("ijk", "");
+                playerCfg.put("sc", 0);
+                playerCfg.put("sp", 1.0f);
+                playerCfg.put("st", 0);
+                playerCfg.put("et", 0);
+            } catch (Exception ignored) {
+            }
+        }
         this.mPlayerConfig = playerCfg;
         updatePlayerCfgView();
         mxPlayerExist = MXPlayer.getPackageInfo() != null;

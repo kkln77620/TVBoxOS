@@ -250,6 +250,14 @@ public class PlayActivity extends BaseActivity {
                     }
                 } else if (msg.what == 300) {
                     setTip((String)msg.obj, false, true);
+                    // 播放错误详情持久化: 便于无崩溃时的定位
+                    try {
+                        String em = (String) msg.obj;
+                        if (em != null) {
+                            FloatLogManager.getInstance().append("播放:错误详情 " + em);
+                        }
+                    } catch (Throwable ignored) {
+                    }
                 }
                 return false;
             }
@@ -356,12 +364,27 @@ public class PlayActivity extends BaseActivity {
             @Override
             public void replay(boolean replay) {
                 autoRetryCount = 0;
+                // 直链模式(本地缓存文件)无 mVodInfo, 重播=重新播放当前URL
+                if (mVodInfo == null && videoURL != null) {
+                    startPlayUrl(videoURL, null);
+                    return;
+                }
                 play(replay);
             }
 
             @Override
             public void errReplay() {
-                errorWithRetry("视频播放出错", false);
+                // 透传底层真实错误信息(doikki onError 的 code/msg), 便于定位
+                String err = "视频播放出错";
+                try {
+                    if (mVideoView != null) {
+                        String m = ((xyz.doikki.videoplayer.player.BaseVideoView) mVideoView).mLastErrorMsg;
+                        int c = ((xyz.doikki.videoplayer.player.BaseVideoView) mVideoView).mLastErrorCode;
+                        if (m != null && !m.isEmpty()) err = "播放错误(" + c + ") " + m;
+                    }
+                } catch (Throwable ignored) {
+                }
+                errorWithRetry(err, false);
             }
 
             @Override
@@ -678,6 +701,16 @@ public class PlayActivity extends BaseActivity {
         if (switchIndex + 1 < switchQueue.length) {
             switchIndex++;
             int newType = switchQueue[switchIndex];
+            // 本地文件(file://)场景: 跳过系统内核(0), 系统播放器遇损坏TS易崩溃
+            boolean isLocal = videoURL != null && videoURL.startsWith("file://");
+            if (isLocal && newType == 0) {
+                if (switchIndex + 1 < switchQueue.length) {
+                    switchIndex++;
+                    newType = switchQueue[switchIndex];
+                } else {
+                    newType = 1;
+                }
+            }
             Hawk.put(HawkConfig.PLAY_TYPE, newType);
             if (mVodPlayerCfg != null) {
                 try {
@@ -868,22 +901,30 @@ public class PlayActivity extends BaseActivity {
                         switchIndex = -1;
                         lastSwitchUrl = finalUrl;
                     }
-                    // 本地文件: 强制 VLC 内核(对损坏TS容错最强), 失败自动切换IJK/Exo/系统
-                    int cur = 4;
-                    if (Hawk.get(HawkConfig.PLAY_TYPE, 0) != 4) {
+                    // 本地文件: 首次播放默认 VLC(容错最强); 自动切换重播时尊重当前内核, 不再强制
+                    int cur = Hawk.get(HawkConfig.PLAY_TYPE, 0);
+                    boolean switching = (switchQueue != null && finalUrl.equals(lastSwitchUrl));
+                    if (!switching && cur != 1 && cur != 2 && cur != 4) {
+                        // 首次且用户内核为系统/阿里: 改用VLC, 避免系统内核播放损坏TS崩溃
                         Hawk.put(HawkConfig.PLAY_TYPE, 4);
+                        cur = 4;
                         FloatLogManager.getInstance().append("播放:本地文件改用VLC内核");
                     }
                     PlayerHelper.updateCfg(mVideoView, null, cur);
                     mVideoView.setProgressKey(null);
                     mVideoView.setUrl(finalUrl);
                     mVideoView.start();
-                    if (mController != null) mController.resetSpeed();
+                    if (mController != null) {
+                        if (mVodPlayerCfg == null) mVodPlayerCfg = new JSONObject();
+                        mController.setPlayerConfig(mVodPlayerCfg); // 直链模式也要走配置链路, 否则控制层NPE
+                        mController.resetSpeed();
+                    }
                     FloatLogManager.getInstance().append("播放:本地文件 " + finalUrl + " [" + PlayerHelper.getPlayerName(cur) + "]");
                 } catch (Throwable th) {
                     th.printStackTrace();
-                    setTip("本地文件播放失败", false, true);
                     FloatLogManager.getInstance().append("播放:本地文件失败 " + th.getMessage());
+                    // 触发播放器自动切换(如VLC初始化失败自动换IJK/Exo)
+                    runOnUiThread(() -> errorWithRetry("本地文件播放失败", false));
                 }
             });
             return;
@@ -908,8 +949,8 @@ public class PlayActivity extends BaseActivity {
             HashMap<String, String> dlHeaders = (headers != null && !headers.isEmpty()) ? headers : lastPlayHeaders;
             boolean isHttp = finalUrl != null && (finalUrl.startsWith("http://") || finalUrl.startsWith("https://"));
             boolean isLocalM3u8 = isHttp && finalUrl.contains("://127.0.0.1") && finalUrl.contains("/m3u8");
-            // 自动缓存开关(设置-系统设置可关闭; 连播会逐集入队, 关闭后不再自动下载)
-            boolean autoCacheOn = Hawk.get(HawkConfig.AUTO_CACHE, true);
+            // 自动缓存开关(播放设置-播放自动缓存, 暂未开放默认关闭) + 缓存总开关(缓存启用)
+            boolean autoCacheOn = Hawk.get(HawkConfig.AUTO_CACHE, false) && Hawk.get(HawkConfig.CACHE_ENABLE, false);
             if (autoCacheOn && isHttp && (!finalUrl.contains("://127.0.0.1") || isLocalM3u8)
                     && mVodInfo != null && mVodInfo.name != null) {
                 String cacheName = mVodInfo.name;
@@ -1191,6 +1232,7 @@ public class PlayActivity extends BaseActivity {
             String directUrl = bundle.getString("url");
             if (directUrl != null && !directUrl.isEmpty()) {
                 FloatLogManager.getInstance().append("播放:直链模式 " + directUrl);
+                mVodPlayerCfg = new JSONObject(); // 直链模式无 VodInfo, 初始化空配置防止后续 NPE
                 startPlayUrl(directUrl, null);
                 return;
             }
@@ -1527,6 +1569,11 @@ public class PlayActivity extends BaseActivity {
     }
 
     public void play(boolean reset) {
+        if (mVodInfo == null) {
+            // 直链模式(本地缓存文件): 无剧集信息, 直接重播当前URL
+            if (videoURL != null) startPlayUrl(videoURL, null);
+            return;
+        }
         VodInfo.VodSeries vs = mVodInfo.seriesMap.get(mVodInfo.playFlag).get(mVodInfo.getplayIndex());
         EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_REFRESH, mVodInfo.getplayIndex()));
         EventBus.getDefault().post(new RefreshEvent(RefreshEvent.TYPE_REFRESH_NOTIFY, mVodInfo.name + "&&" + vs.name));

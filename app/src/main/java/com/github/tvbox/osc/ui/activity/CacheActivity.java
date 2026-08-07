@@ -294,7 +294,9 @@ public class CacheActivity extends BaseActivity {
                 if (item.state == CacheTask.STATE_DONE && f.exists()) {
                     try {
                         Intent intent = new Intent(CacheActivity.this, PlayActivity.class);
-                        intent.putExtra("url", Uri.fromFile(f).toString());
+                        // 用原始路径(file:// + 绝对路径), 不经过 Uri.fromFile 的百分号编码:
+                        // ffmpeg/IJK 的 file 协议不做 percent-decode, 编码 URL 会找不到文件
+                        intent.putExtra("url", "file://" + f.getAbsolutePath());
                         startActivity(intent);
                     } catch (Throwable th) {
                         th.printStackTrace();

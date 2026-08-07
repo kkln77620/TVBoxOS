@@ -621,6 +621,9 @@ public class DownloadManager {
         long totalEstimate = 0; // 滚动估算总量
         int skipped = 0; // 失败跳过的分片数
         long doneCount = 0; // 已成功写入的分片数(用于估算总量, 并发下不能按序号i+1计算)
+        // PTS连续性状态: pid -> 已修正的最后一个PTS / 当前累计偏移
+        Map<Integer, Long> ptsLast = new HashMap<>();
+        Map<Integer, Long> ptsOffset = new HashMap<>();
         // 停滞检测: 每120秒检查合并增量, 下载量<1MB视为停滞, 自动中止释放线程
         long checkTime = System.currentTimeMillis();
         long checkDone = 0;
@@ -683,6 +686,19 @@ public class DownloadManager {
                         throw new java.io.IOException("AES-128 解密失败(第" + (i + 1) + "分片)");
                     }
                 }
+                // 分片末尾对齐: 若分片不是188字节整倍数(下载截断/源站非标准), 截掉末尾余数
+                // 否则拼接处包结构损坏, 所有播放器(包括MT/系统)都会卡在分片边界(约10秒周期)
+                int alignOff = data.length % 188;
+                if (alignOff != 0) {
+                    int newLen = data.length - alignOff;
+                    if (newLen > 0) {
+                        byte[] aligned = new byte[newLen];
+                        System.arraycopy(data, 0, aligned, 0, newLen);
+                        data = aligned;
+                    }
+                }
+                // PTS/DTS/PCR 连续性修复: 各分片独立时间戳, 合并后回跳会导致播放器(ffmpeg/Exo)反复重同步/进度回退
+                rewriteTsTimestamps(data, ptsLast, ptsOffset);
                 // 暂停检测: 用户暂停时中止合并
                 if (task.state == CacheTask.STATE_PAUSED) {
                     throw new java.io.IOException("已暂停");
@@ -746,6 +762,110 @@ public class DownloadManager {
         } catch (Throwable th) {
             return null;
         }
+    }
+
+    /**
+     * TS 分片时间戳连续性修复:
+     * HLS 各分片时间戳独立(常从0或随机值开始), 直接拼接后 PTS/DTS 在分片边界回跳,
+     * 导致 ffmpeg/IJK/Exo 检测到时间戳回退反复重同步, 表现为播放进度周期性回退/循环。
+     * 本方法逐包重写 PES 的 PTS/DTS 与 PCR, 使合并后时间戳单调递增。
+     * 90kHz 时基, 回跳阈值 0.5 秒(45000 ticks)。
+     */
+    private void rewriteTsTimestamps(byte[] data, Map<Integer, Long> ptsLast, Map<Integer, Long> ptsOffset) {
+        if (data == null || data.length < 188) return;
+        for (int off = 0; off + 188 <= data.length; off += 188) {
+            if (data[off] != 0x47) continue;
+            int pid = ((data[off + 1] & 0x1F) << 8) | (data[off + 2] & 0xFF);
+            boolean isPes = (pid >= 0xC0 && pid <= 0xDF) || (pid >= 0xE0 && pid <= 0xEF) || pid == 0xBD;
+            if (!isPes) continue;
+            // 仅处理 PES 起始包
+            if ((data[off + 1] & 0x40) == 0) continue;
+            int payloadOff = off + 4;
+            int afc = (data[off + 3] & 0x30) >> 4;
+            if (afc == 2 || afc == 3) {
+                int afLen = 1 + (data[off + 4] & 0xFF);
+                // 重写 PCR(在 adaptation field 内, 同一偏移修正)
+                if (afc == 3 && (data[off + 5] & 0x10) != 0 && payloadOff + 6 <= off + 188) {
+                    long pcr = readPcr(data, off + 6);
+                    Long lastPcr = ptsLast.get(pid * 1000);
+                    if (lastPcr != null && pcr + 45000 < lastPcr) {
+                        long delta = lastPcr - pcr + 9000;
+                        writePcr(data, off + 6, pcr + delta);
+                    } else if (lastPcr != null) {
+                        // 正常递增, 仅更新
+                    }
+                    if (lastPcr == null) {
+                        ptsLast.put(pid * 1000, pcr);
+                    } else {
+                        long np = readPcr(data, off + 6);
+                        if (np > lastPcr) ptsLast.put(pid * 1000, np);
+                    }
+                }
+                payloadOff += afLen;
+            }
+            if (payloadOff + 9 > off + 188) continue;
+            // PES 头: 00 00 01
+            if (data[payloadOff] != 0 || data[payloadOff + 1] != 0 || data[payloadOff + 2] != 1) continue;
+            int flags = data[payloadOff + 7] & 0xFF;
+            boolean hasPts = (flags & 0x80) != 0;
+            if (!hasPts) continue;
+            boolean hasDts = (flags & 0x40) != 0;
+            int ptsOff = payloadOff + 9;
+            if (ptsOff + 5 > off + 188) continue;
+            long pts = readPts(data, ptsOff);
+            Long last = ptsLast.get(pid);
+            long offs = ptsOffset.containsKey(pid) ? ptsOffset.get(pid) : 0L;
+            if (last != null && pts + offs + 45000 < last) {
+                // 分片边界回跳: 提升偏移, 使修正后 PTS 紧接上一分片末尾
+                offs += last - (pts + offs) + 9000;
+                ptsOffset.put(pid, offs);
+            }
+            long newPts = pts + offs;
+            if (newPts != pts) writePts(data, ptsOff, newPts);
+            if (hasDts && ptsOff + 10 <= off + 188) {
+                long dts = readPts(data, ptsOff + 5);
+                long newDts = dts + offs;
+                if (newDts != dts) writePts(data, ptsOff + 5, newDts);
+            }
+            ptsLast.put(pid, newPts);
+        }
+    }
+
+    /** 读取 33 位 PTS/DTS */
+    private long readPts(byte[] d, int off) {
+        return (((long) (d[off] & 0x0E)) << 29)
+                | (((long) d[off + 1] & 0xFF) << 22)
+                | (((long) (d[off + 2] & 0xFE)) << 14)
+                | (((long) d[off + 3] & 0xFF) << 7)
+                | (((long) (d[off + 4] & 0xFE)) >> 1);
+    }
+
+    /** 写入 33 位 PTS/DTS */
+    private void writePts(byte[] d, int off, long pts) {
+        d[off] = (byte) (0x21 | ((pts >> 29) & 0x0E));
+        d[off + 1] = (byte) (pts >> 22);
+        d[off + 2] = (byte) (((pts >> 14) & 0xFE) | 0x01);
+        d[off + 3] = (byte) (pts >> 7);
+        d[off + 4] = (byte) (((pts << 1) & 0xFE) | 0x01);
+    }
+
+    /** 读取 PCR(33位 base + 9位 ext) */
+    private long readPcr(byte[] d, int off) {
+        return (((long) d[off] & 0xFF) << 25)
+                | (((long) d[off + 1] & 0xFF) << 17)
+                | (((long) d[off + 2] & 0xFF) << 9)
+                | (((long) d[off + 3] & 0xFF) << 1)
+                | (((long) d[off + 4] & 0x80) >> 7);
+    }
+
+    /** 写入 PCR */
+    private void writePcr(byte[] d, int off, long pcr) {
+        d[off] = (byte) (pcr >> 25);
+        d[off + 1] = (byte) (pcr >> 17);
+        d[off + 2] = (byte) (pcr >> 9);
+        d[off + 3] = (byte) (pcr >> 1);
+        d[off + 4] = (byte) (((pcr & 1) << 7) | 0x7E);
+        d[off + 5] = 0x00;
     }
 
     private java.net.HttpURLConnection openConn(String url) throws Exception {

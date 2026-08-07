@@ -3,6 +3,7 @@ package com.github.tvbox.osc.ui.fragment;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import com.github.tvbox.osc.R;
@@ -53,6 +54,36 @@ public class PlaySettingFragment extends BaseLazyFragment {
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
         tvVideoPurifyText = findViewById(R.id.tvVideoPurifyText);
         tvVideoPurifyText.setText(Hawk.get(HawkConfig.VIDEO_PURIFY, true) ? "开启" : "关闭");
+        // 缓存启用: 点击弹警告二级菜单, 用户确认才开启(缓存存在大量BUG风险)
+        TextView tvCacheEnableText = findViewById(R.id.tvCacheEnableText);
+        tvCacheEnableText.setText(Hawk.get(HawkConfig.CACHE_ENABLE, false) ? "已开启" : "已关闭");
+        findViewById(R.id.llCacheEnable).setOnClickListener(v -> {
+            FastClickCheckUtil.check(v);
+            boolean now = Hawk.get(HawkConfig.CACHE_ENABLE, false);
+            if (now) {
+                // 已开启: 点击直接关闭
+                Hawk.put(HawkConfig.CACHE_ENABLE, false);
+                tvCacheEnableText.setText("已关闭");
+                Toast.makeText(mContext, "缓存功能已关闭", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // 未开启: 警告二级菜单
+            new android.app.AlertDialog.Builder(mContext)
+                    .setTitle("⚠️ 缓存功能警告")
+                    .setMessage("缓存功能存在大量BUG，可能出现闪退、报错、文件损坏等问题，是否仍要开启？")
+                    .setPositiveButton("仍要开启", (d, w) -> {
+                        Hawk.put(HawkConfig.CACHE_ENABLE, true);
+                        tvCacheEnableText.setText("已开启");
+                        Toast.makeText(mContext, "缓存功能已开启, 使用中如遇异常请反馈", Toast.LENGTH_LONG).show();
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+        });
+        // 播放自动缓存: 暂未开放(禁用态)
+        findViewById(R.id.llAutoCache).setOnClickListener(v -> {
+            FastClickCheckUtil.check(v);
+            Toast.makeText(mContext, "播放自动缓存暂未开放, 敬请期待", Toast.LENGTH_SHORT).show();
+        });
         // 弹幕地址
         TextView tvDanmuUrl = findViewById(R.id.tvDanmuUrl);
         tvDanmuUrl.setText(TextUtils.isEmpty(HawkUtils.getDanmuUrl()) ? "未设置" : HawkUtils.getDanmuUrl());

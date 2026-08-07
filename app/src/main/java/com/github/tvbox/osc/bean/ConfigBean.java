@@ -14,7 +14,9 @@ public class ConfigBean {
     public boolean enabled; // 是否启用
 
     public ConfigBean() {
-        this.id = String.valueOf(System.currentTimeMillis());
+        // UUID 保证唯一: 时间戳在毫秒级快速连续创建(如内置A/B/C批量导入)时会重复,
+        // 导致启用/删除/主页标记只命中第一个, 出现三地址绑定问题
+        this.id = java.util.UUID.randomUUID().toString();
         this.enabled = true;
     }
 
